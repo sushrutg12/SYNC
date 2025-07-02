@@ -289,7 +289,7 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.settingsButton} activeOpacity={0.8}>
           <Settings size={24} color="#F4E0CC" strokeWidth={2.5} />
         </TouchableOpacity>
-        <Text style={styles.title}>My Profile</Text>
+        <Text style={styles.title}>Hub</Text>
         <TouchableOpacity style={styles.menuButton} activeOpacity={0.8}>
           <View style={styles.menuDots}>
             <View style={styles.menuDot} />
