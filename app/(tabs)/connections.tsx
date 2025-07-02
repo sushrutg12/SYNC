@@ -24,7 +24,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { MessageCircle, Send, ArrowLeft, Phone, Video, MoveVertical as MoreVertical, Smile } from 'lucide-react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -559,13 +559,19 @@ export default function ConnectionsScreen() {
     };
   });
 
+  const handleBackToList = () => {
+    setSelectedChat(null);
+    // Clear the URL parameter by navigating to the connections tab without parameters
+    router.replace('/connections');
+  };
+
   const selectedConversation = conversations.find(c => c.id === selectedChat);
 
   if (selectedConversation) {
     return (
       <ChatScreen 
         conversation={selectedConversation} 
-        onBack={() => setSelectedChat(null)} 
+        onBack={handleBackToList} 
       />
     );
   }
