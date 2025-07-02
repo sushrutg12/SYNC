@@ -1,0 +1,602 @@
+import React, { useEffect, useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image,
+  Platform,
+  FlatList,
+  Dimensions
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+} from 'react-native-reanimated';
+import { MessageCircle, Send, ArrowLeft } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
+
+interface Standout {
+  id: string;
+  name: string;
+  avatar: string;
+  isNew: boolean;
+}
+
+interface Conversation {
+  id: string;
+  name: string;
+  lastMessage: string;
+  time: string;
+  avatar: string;
+  unread: boolean;
+  isStandout: boolean;
+}
+
+const standouts: Standout[] = [
+  {
+    id: '1',
+    name: 'Jessica',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
+    isNew: true,
+  },
+  {
+    id: '2',
+    name: 'Alex',
+    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
+    isNew: false,
+  },
+  {
+    id: '3',
+    name: 'Priya',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    isNew: true,
+  },
+  {
+    id: '4',
+    name: 'Marcus',
+    avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
+    isNew: false,
+  },
+];
+
+const conversations: Conversation[] = [
+  {
+    id: '1',
+    name: 'Jessica Chen',
+    lastMessage: 'Thanks for connecting! Would love to discuss the design system project we talked about.',
+    time: '2m',
+    avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
+    unread: true,
+    isStandout: true,
+  },
+  {
+    id: '2',
+    name: 'Alexander Rodriguez',
+    lastMessage: 'The React architecture looks solid. Let\'s schedule a call to discuss implementation.',
+    time: '1h',
+    avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
+    unread: true,
+    isStandout: true,
+  },
+  {
+    id: '3',
+    name: 'Priya Sharma',
+    lastMessage: 'Great meeting you at the conference! Here\'s my portfolio link as promised.',
+    time: '3h',
+    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    unread: false,
+    isStandout: true,
+  },
+  {
+    id: '4',
+    name: 'Marcus Johnson',
+    lastMessage: 'The startup idea has real potential. Let\'s explore potential partnerships.',
+    time: '1d',
+    avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
+    unread: false,
+    isStandout: false,
+  },
+  {
+    id: '5',
+    name: 'Sarah Kim',
+    lastMessage: 'Thanks for the introduction to the team at Google. Really appreciate it!',
+    time: '2d',
+    avatar: 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400',
+    unread: false,
+    isStandout: false,
+  },
+];
+
+function StandoutAvatar({ standout, index }: { standout: Standout; index: number }) {
+  const scale = useSharedValue(0.8);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = withDelay(
+      index * 100,
+      withSpring(1, {
+        damping: 15,
+        stiffness: 140,
+      })
+    );
+    opacity.value = withDelay(index * 100, withTiming(1, { duration: 600 }));
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <TouchableOpacity style={styles.standoutContainer} activeOpacity={0.8}>
+        <View style={[
+          styles.standoutRing,
+          standout.isNew && standout.name !== 'Priya' && standout.name !== 'Alex' && styles.standoutRingNew
+        ]}>
+          <Image source={{ uri: standout.avatar }} style={styles.standoutAvatar} />
+        </View>
+        {standout.isNew && <View style={styles.newIndicator} />}
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+function ConversationItem({ conversation, index }: { conversation: Conversation; index: number }) {
+  const translateX = useSharedValue(100);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    translateX.value = withDelay(
+      (index + 4) * 80,
+      withSpring(0, {
+        damping: 18,
+        stiffness: 120,
+      })
+    );
+    opacity.value = withDelay((index + 4) * 80, withTiming(1, { duration: 600 }));
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: translateX.value }],
+      opacity: opacity.value,
+    };
+  });
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <TouchableOpacity style={styles.conversationItem} activeOpacity={0.8}>
+        <View style={styles.conversationContent}>
+          <View style={styles.avatarContainer}>
+            <View style={[
+              styles.conversationAvatarRing,
+              (conversation.unread || conversation.isStandout) &&
+                conversation.name !== 'Priya Sharma' && conversation.name !== 'Alexander Rodriguez' &&
+                styles.conversationAvatarRingActive
+            ]}>
+              <Image source={{ uri: conversation.avatar }} style={styles.conversationAvatar} />
+            </View>
+            {conversation.unread && <View style={styles.unreadDot} />}
+          </View>
+          
+          <View style={styles.messageContent}>
+            <View style={styles.messageHeader}>
+              <Text style={[
+                styles.senderName,
+                conversation.unread && styles.senderNameUnread,
+                (conversation.name === 'Alexander Rodriguez' || conversation.name === 'Priya Sharma') && { color: '#F5F5F5', fontFamily: 'Inter-Bold' }
+              ]}>
+                {conversation.name}
+              </Text>
+              <Text style={styles.messageTime}>{conversation.time}</Text>
+            </View>
+            <Text 
+              style={[
+                styles.lastMessage, 
+                conversation.unread && styles.lastMessageUnread
+              ]} 
+              numberOfLines={2}
+            >
+              {conversation.lastMessage}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+export default function ConnectionsScreen() {
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const headerOpacity = useSharedValue(0);
+  const standoutsOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    headerOpacity.value = withTiming(1, { duration: 800 });
+    standoutsOpacity.value = withDelay(200, withTiming(1, { duration: 600 }));
+  }, []);
+
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: headerOpacity.value,
+    };
+  });
+
+  const standoutsAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: standoutsOpacity.value,
+    };
+  });
+
+  if (selectedChat) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.chatHeader}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => setSelectedChat(null)}
+            activeOpacity={0.8}
+          >
+            <ArrowLeft size={24} color="#F5F5F5" strokeWidth={2.5} />
+          </TouchableOpacity>
+          <View style={styles.chatAvatarContainer}>
+            <View style={styles.chatAvatarRing}>
+              <Image 
+                source={{ uri: conversations.find(c => c.id === selectedChat)?.avatar }} 
+                style={styles.chatAvatar} 
+              />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.chatContent}>
+          <Text style={styles.chatIntro}>Your messages began here</Text>
+          
+          <View style={styles.messagesContainer}>
+            <View style={styles.receivedMessage}>
+              <Text style={styles.receivedMessageText}>
+                Hey! Thanks for connecting. I'd love to learn more about your startup.
+              </Text>
+            </View>
+            
+            <View style={styles.sentMessage}>
+              <Text style={styles.sentMessageText}>
+                Absolutely! We're building a platform that connects entrepreneurs with the right investors and mentors.
+              </Text>
+            </View>
+            
+            <View style={styles.receivedMessage}>
+              <Text style={styles.receivedMessageText}>
+                That sounds fascinating! I'd love to hear more about your approach and maybe discuss potential collaboration opportunities.
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <View style={styles.inputBar}>
+            <Text style={styles.inputPlaceholder}>Type a message...</Text>
+            <TouchableOpacity style={styles.sendButton} activeOpacity={0.8}>
+              <Send size={20} color="#F5F5F5" strokeWidth={2.5} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Animated.View style={[styles.header, headerAnimatedStyle]}>
+        <Text style={styles.title}>Connects</Text>
+      </Animated.View>
+
+      <Animated.View style={[styles.standoutsSection, standoutsAnimatedStyle]}>
+        <Text style={styles.standoutsLabel}>INSYNC</Text>
+        <FlatList
+          data={standouts}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.standoutsList}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }) => (
+            <StandoutAvatar standout={item} index={index} />
+          )}
+        />
+      </Animated.View>
+
+      <ScrollView
+        style={styles.conversationsContainer}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.conversationsContent}
+      >
+        {conversations.map((conversation, index) => (
+          <ConversationItem 
+            key={conversation.id} 
+            conversation={conversation} 
+            index={index}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 70 : 50,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontFamily: 'Inter-Bold',
+    color: '#FF595A',
+    letterSpacing: 1,
+  },
+  standoutsSection: {
+    backgroundColor: '#F4E0CC',
+    paddingVertical: 20,
+    marginBottom: 8,
+  },
+  standoutsLabel: {
+    fontSize: 14,
+    fontFamily: 'Inter-Bold',
+    color: '#121212',
+    textAlign: 'center',
+    letterSpacing: 2,
+    marginBottom: 16,
+  },
+  standoutsList: {
+    paddingHorizontal: 24,
+    gap: 20,
+  },
+  standoutContainer: {
+    alignItems: 'center',
+    position: 'relative',
+  },
+  standoutRing: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#F5F5F5',
+    padding: 3,
+  },
+  standoutRingNew: {
+    borderColor: '#FF595A',
+    borderWidth: 4,
+  },
+  standoutAvatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 36,
+  },
+  newIndicator: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FF595A',
+    borderWidth: 2,
+    borderColor: '#1E1E1E',
+  },
+  conversationsContainer: {
+    flex: 1,
+  },
+  conversationsContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 120,
+  },
+  conversationItem: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  conversationContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginRight: 16,
+  },
+  conversationAvatarRing: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: '#F5F5F5',
+    padding: 2,
+  },
+  conversationAvatarRingActive: {
+    borderColor: '#FF595A',
+    borderWidth: 3,
+  },
+  conversationAvatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 25,
+  },
+  unreadDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FF595A',
+    borderWidth: 2,
+    borderColor: '#1E1E1E',
+  },
+  messageContent: {
+    flex: 1,
+  },
+  messageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  senderName: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#F5F5F5',
+  },
+  senderNameUnread: {
+    color: '#FF595A',
+    fontFamily: 'Inter-Bold',
+  },
+  messageTime: {
+    fontSize: 12,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+  },
+  lastMessage: {
+    fontSize: 14,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+    lineHeight: 20,
+    opacity: 0.8,
+  },
+  lastMessageUnread: {
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Medium',
+    opacity: 1,
+  },
+  // Chat Detail Styles
+  chatHeader: {
+    paddingTop: Platform.OS === 'ios' ? 70 : 50,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
+    backgroundColor: '#1E1E1E',
+    position: 'relative',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 24,
+    top: Platform.OS === 'ios' ? 70 : 50,
+    padding: 8,
+  },
+  chatAvatarContainer: {
+    alignItems: 'center',
+  },
+  chatAvatarRing: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 4,
+    borderColor: '#FF595A',
+    padding: 4,
+  },
+  chatAvatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 46,
+  },
+  chatContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  chatIntro: {
+    fontSize: 14,
+    color: '#F5F5F5',
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    opacity: 0.6,
+    marginBottom: 24,
+  },
+  messagesContainer: {
+    flex: 1,
+    gap: 16,
+  },
+  receivedMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F4E0CC',
+    borderRadius: 20,
+    borderBottomLeftRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    maxWidth: '80%',
+  },
+  receivedMessageText: {
+    fontSize: 16,
+    color: '#121212',
+    fontFamily: 'Inter-Regular',
+    lineHeight: 22,
+  },
+  sentMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    borderBottomRightRadius: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    maxWidth: '80%',
+  },
+  sentMessageText: {
+    fontSize: 16,
+    color: '#F5F5F5',
+    fontFamily: 'Inter-Regular',
+    lineHeight: 22,
+  },
+  inputContainer: {
+    backgroundColor: '#1E1E1E',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+  },
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#FF595A',
+  },
+  inputPlaceholder: {
+    flex: 1,
+    fontSize: 16,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+  },
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FF595A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+  },
+});
