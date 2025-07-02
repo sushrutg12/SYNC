@@ -8,6 +8,7 @@ import {
   Image,
   Platform,
   Dimensions,
+  Dimensions,
   FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +18,9 @@ import Animated, {
   withTiming,
   withSpring,
   withDelay,
+  useAnimatedScrollHandler,
+  interpolate,
+  Extrapolate,
   useAnimatedScrollHandler,
   interpolate,
   Extrapolate,
@@ -156,6 +160,20 @@ function StandoutAvatar({ standout, index }: { standout: Standout; index: number
           </View>
         )}
         <Text style={styles.standoutName}>{standout.name}</Text>
+        <LinearGradient
+          colors={standout.isNew ? ['#FF595A', '#FF7F7F'] : ['rgba(244, 224, 204, 0.2)', 'rgba(244, 224, 204, 0.1)']}
+          style={styles.standoutGradientRing}
+        >
+          <View style={styles.standoutInnerRing}>
+            <Image source={{ uri: standout.avatar }} style={styles.standoutAvatar} />
+          </View>
+        </LinearGradient>
+        {standout.isNew && (
+          <View style={styles.newIndicator}>
+            <View style={styles.newIndicatorPulse} />
+          </View>
+        )}
+        <Text style={styles.standoutName}>{standout.name}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -168,11 +186,13 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
   useEffect(() => {
     translateX.value = withDelay(
       index * 80,
+      index * 80,
       withSpring(0, {
         damping: 18,
         stiffness: 120,
       })
     );
+    opacity.value = withDelay(index * 80, withTiming(1, { duration: 600 }));
     opacity.value = withDelay(index * 80, withTiming(1, { duration: 600 }));
   }, []);
 
@@ -229,11 +249,18 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
 export default function ConnectionsScreen() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const scrollY = useSharedValue(0);
+  const scrollY = useSharedValue(0);
   const headerOpacity = useSharedValue(0);
 
   useEffect(() => {
     headerOpacity.value = withTiming(1, { duration: 800 });
   }, []);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -315,8 +342,58 @@ export default function ConnectionsScreen() {
           <Text style={styles.title}>INSYNC</Text>
           <View style={styles.accent} />
         </LinearGradient>
+      {/* Sticky INSYNC Title Only */}
+      <Animated.View style={[styles.stickyTitle, headerAnimatedStyle]}>
+        <LinearGradient
+          colors={['rgba(30, 30, 30, 0.98)', 'rgba(18, 18, 18, 0.95)']}
+          style={styles.titleGradientBackground}
+        >
+          <Text style={styles.title}>INSYNC</Text>
+          <View style={styles.accent} />
+        </LinearGradient>
       </Animated.View>
 
+      {/* Scrollable Content */}
+      <Animated.ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+      >
+        {/* Spacer for sticky title */}
+        <View style={styles.titleSpacer} />
+        
+        {/* Standout Profiles Section - Can scroll away */}
+        <View style={styles.standoutsSection}>
+          <LinearGradient
+            colors={['rgba(30, 30, 30, 0.9)', 'rgba(18, 18, 18, 0.8)']}
+            style={styles.standoutsGradientBackground}
+          >
+            <FlatList
+              data={standouts}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.standoutsList}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item, index }) => (
+                <StandoutAvatar standout={item} index={index} />
+              )}
+            />
+          </LinearGradient>
+        </View>
+        
+        {/* Conversations */}
+        <View style={styles.conversationsContainer}>
+          {conversations.map((conversation, index) => (
+            <ConversationItem 
+              key={conversation.id} 
+              conversation={conversation} 
+              index={index}
+            />
+          ))}
+        </View>
+      </Animated.ScrollView>
       {/* Scrollable Content */}
       <Animated.ScrollView
         style={styles.scrollContainer}
@@ -388,11 +465,36 @@ const styles = StyleSheet.create({
   titleGradientBackground: {
     paddingVertical: 20,
     paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+  },
+  
+  // Sticky Title Styles (INSYNC only)
+  stickyTitle: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 30,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  titleGradientBackground: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(244, 224, 204, 0.1)',
   },
   title: {
+    fontSize: 20,
     fontSize: 20,
     fontFamily: 'Inter-Bold',
     color: '#FF595A',
@@ -439,6 +541,8 @@ const styles = StyleSheet.create({
   standoutsList: {
     paddingHorizontal: 4,
     gap: 24,
+    paddingHorizontal: 4,
+    gap: 24,
   },
   standoutContainer: {
     alignItems: 'center',
@@ -448,9 +552,20 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
+  standoutGradientRing: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     padding: 3,
     marginBottom: 12,
+    marginBottom: 12,
   },
+  standoutInnerRing: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 41,
+    padding: 2,
+    backgroundColor: '#121212',
   standoutInnerRing: {
     width: '100%',
     height: '100%',
@@ -469,11 +584,22 @@ const styles = StyleSheet.create({
     color: '#F4E0CC',
     textAlign: 'center',
     letterSpacing: 0.5,
+    borderRadius: 39,
+  },
+  standoutName: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#F4E0CC',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   newIndicator: {
     position: 'absolute',
     top: 2,
     right: 2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     width: 18,
     height: 18,
     borderRadius: 9,
@@ -488,22 +614,42 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#F4E0CC',
+    borderWidth: 3,
+    borderColor: '#121212',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  newIndicatorPulse: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F4E0CC',
+  },
+
+  // Conversations Styles
 
   // Conversations Styles
   conversationsContainer: {
     paddingHorizontal: 16,
     gap: 12,
+    gap: 12,
   },
   conversationItem: {
+    backgroundColor: 'rgba(30, 30, 30, 0.8)',
+    borderRadius: 20,
     backgroundColor: 'rgba(30, 30, 30, 0.8)',
     borderRadius: 20,
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
       height: 4,
+      height: 4,
     },
     shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 224, 204, 0.1)',
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1,
@@ -512,6 +658,7 @@ const styles = StyleSheet.create({
   conversationContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 20,
     padding: 20,
   },
   avatarContainer: {
@@ -523,6 +670,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
+    borderColor: 'rgba(245, 245, 245, 0.3)',
     borderColor: 'rgba(245, 245, 245, 0.3)',
     padding: 2,
   },
@@ -542,8 +690,12 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: '#FF595A',
     borderWidth: 2,
+    borderColor: '#121212',
     borderColor: '#121212',
   },
   messageContent: {
@@ -553,6 +705,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 6,
     marginBottom: 6,
   },
   senderName: {
@@ -569,6 +722,7 @@ const styles = StyleSheet.create({
     color: '#F4E0CC',
     fontFamily: 'Inter-Regular',
     opacity: 0.7,
+    opacity: 0.7,
   },
   lastMessage: {
     fontSize: 14,
@@ -582,6 +736,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     opacity: 1,
   },
+
 
   // Chat Detail Styles
   chatHeader: {
