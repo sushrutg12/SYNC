@@ -24,6 +24,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { MessageCircle, Send, ArrowLeft, Phone, Video, MoveVertical as MoreVertical, Smile } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -530,13 +531,21 @@ function ChatScreen({ conversation, onBack }: {
 }
 
 export default function ConnectionsScreen() {
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const { openChat } = useLocalSearchParams<{ openChat?: string }>();
+  const [selectedChat, setSelectedChat] = useState<string | null>(openChat || null);
   const scrollY = useSharedValue(0);
   const headerOpacity = useSharedValue(0);
 
   useEffect(() => {
     headerOpacity.value = withTiming(1, { duration: 800 });
   }, []);
+
+  // Handle opening chat from URL parameter
+  useEffect(() => {
+    if (openChat) {
+      setSelectedChat(openChat);
+    }
+  }, [openChat]);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {

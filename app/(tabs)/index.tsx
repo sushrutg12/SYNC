@@ -23,6 +23,7 @@ import Animated, {
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageCircle, Heart, X, MapPin, Briefcase, Award, Star } from 'lucide-react-native';
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 const CARD_WIDTH = width - 48;
@@ -377,6 +378,32 @@ export default function InSyncScreen() {
     }
   };
 
+  const handleMessagePress = () => {
+    const currentProfile = visibleProfiles[0];
+    if (currentProfile) {
+      // Navigate to connections tab and open chat with current profile
+      // We'll use a URL parameter to specify which chat to open
+      router.push({
+        pathname: '/connections',
+        params: { openChat: getConversationIdForProfile(currentProfile) }
+      });
+    }
+  };
+
+  // Helper function to map profile to conversation ID
+  const getConversationIdForProfile = (profile: Profile): string => {
+    // Map profile names to conversation IDs based on the conversations data
+    const nameToIdMap: { [key: string]: string } = {
+      'Jessica Chen': '1',
+      'Alexander Rodriguez': '2', 
+      'Priya Sharma': '3',
+      'David Kim': '4',
+      'Sarah Wilson': '5',
+    };
+    
+    return nameToIdMap[profile.name] || '1'; // Default to Jessica's conversation
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -434,6 +461,7 @@ export default function InSyncScreen() {
           
           <TouchableOpacity 
             style={styles.messageButton} 
+            onPress={handleMessagePress}
             activeOpacity={0.8}
           >
             <MessageCircle size={28} color="#F4E0CC" strokeWidth={3} />
