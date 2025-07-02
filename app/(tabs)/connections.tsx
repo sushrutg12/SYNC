@@ -17,6 +17,9 @@ import Animated, {
   withTiming,
   withSpring,
   withDelay,
+  useAnimatedScrollHandler,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react-native';
 
@@ -225,23 +228,30 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
 
 export default function ConnectionsScreen() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  const headerOpacity = useSharedValue(0);
-  const standoutsOpacity = useSharedValue(0);
+  const scrollY = useSharedValue(0);
+  const lastScrollY = useSharedValue(0);
+  const isScrollingUp = useSharedValue(false);
 
-  useEffect(() => {
-    headerOpacity.value = withTiming(1, { duration: 800 });
-    standoutsOpacity.value = withDelay(200, withTiming(1, { duration: 600 }));
-  }, []);
-
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: headerOpacity.value,
-    };
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      const currentScrollY = event.contentOffset.y;
+      isScrollingUp.value = currentScrollY < lastScrollY.value;
+      lastScrollY.value = currentScrollY;
+      scrollY.value = currentScrollY;
+    },
   });
 
-  const standoutsAnimatedStyle = useAnimatedStyle(() => {
+  // Animated style for the sticky INSYNC section
+  const stickyHeaderStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollY.value,
+      [0, 100],
+      [0, isScrollingUp.value ? 0 : -120],
+      Extrapolate.CLAMP
+    );
+
     return {
-      opacity: standoutsOpacity.value,
+      transform: [{ translateY }],
     };
   });
 
@@ -304,13 +314,10 @@ export default function ConnectionsScreen() {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.header, headerAnimatedStyle]}>
-        <Text style={styles.title}>Connects</Text>
-      </Animated.View>
-
-      <Animated.View style={[styles.standoutsSection, standoutsAnimatedStyle]}>
+      {/* Sticky INSYNC Header */}
+      <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
         <LinearGradient
-          colors={['rgba(30, 30, 30, 0.95)', 'rgba(18, 18, 18, 0.98)']}
+          colors={['rgba(30, 30, 30, 0.98)', 'rgba(18, 18, 18, 0.95)']}
           style={styles.standoutsSectionGradient}
         >
           <View style={styles.standoutsHeader}>
@@ -330,11 +337,17 @@ export default function ConnectionsScreen() {
         </LinearGradient>
       </Animated.View>
 
-      <ScrollView
-        style={styles.conversationsContainer}
-        showsVerticalScrollIndicator={false}
+      {/* Scrollable Content */}
+      <Animated.ScrollView
+        style={styles.scrollContainer}
         contentContainerStyle={styles.conversationsContent}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
       >
+        {/* Spacer to account for sticky header */}
+        <View style={styles.headerSpacer} />
+        
         {conversations.map((conversation, index) => (
           <ConversationItem 
             key={conversation.id} 
@@ -342,7 +355,7 @@ export default function ConnectionsScreen() {
             index={index}
           />
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -351,21 +364,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
+    paddingTop: Platform.OS === 'ios' ? 50 : 30,
   },
-  header: {
-    paddingTop: Platform.OS === 'ios' ? 70 : 50,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontFamily: 'Inter-Bold',
-    color: '#FF595A',
-    letterSpacing: 1,
-  },
-  standoutsSection: {
-    marginBottom: 8,
+  
+  // Sticky Header Styles
+  stickyHeader: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 30,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
   },
   standoutsSectionGradient: {
     paddingVertical: 24,
@@ -378,18 +394,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   standoutsLabel: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Inter-Bold',
     color: '#F4E0CC',
     textAlign: 'center',
-    letterSpacing: 3,
+    letterSpacing: 4,
     marginBottom: 8,
   },
   standoutsAccent: {
-    width: 40,
-    height: 2,
+    width: 50,
+    height: 3,
     backgroundColor: '#FF595A',
-    borderRadius: 1,
+    borderRadius: 2,
   },
   standoutsList: {
     paddingHorizontal: 4,
@@ -444,8 +460,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#F4E0CC',
   },
-  conversationsContainer: {
+
+  // Scroll Container Styles
+  scrollContainer: {
     flex: 1,
+  },
+  headerSpacer: {
+    height: 180, // Height to account for sticky header
   },
   conversationsContent: {
     paddingHorizontal: 16,
@@ -539,6 +560,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Medium',
     opacity: 1,
   },
+
   // Chat Detail Styles
   chatHeader: {
     paddingTop: Platform.OS === 'ios' ? 70 : 50,
