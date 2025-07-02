@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#F4E0CC',
+    color: '#FF595A',
     textAlign: 'center',
     letterSpacing: 4,
     marginBottom: 8,
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   accent: {
     width: 60,
     height: 4,
-    backgroundColor: '#FF595A',
+    backgroundColor: '#F4E0CC',
     borderRadius: 2,
   },
 
