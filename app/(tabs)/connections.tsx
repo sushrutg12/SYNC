@@ -7,10 +7,8 @@ import {
   TouchableOpacity, 
   Image,
   Platform,
-  FlatList,
   Dimensions
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,6 +20,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react-native';
+import InsyncSection from '@/components/InsyncSection';
 
 const { width } = Dimensions.get('window');
 
@@ -117,63 +116,19 @@ const conversations: Conversation[] = [
   },
 ];
 
-function StandoutAvatar({ standout, index }: { standout: Standout; index: number }) {
-  const scale = useSharedValue(0.8);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    scale.value = withDelay(
-      index * 100,
-      withSpring(1, {
-        damping: 15,
-        stiffness: 140,
-      })
-    );
-    opacity.value = withDelay(index * 100, withTiming(1, { duration: 600 }));
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
-
-  return (
-    <Animated.View style={animatedStyle}>
-      <TouchableOpacity style={styles.standoutContainer} activeOpacity={0.8}>
-        <LinearGradient
-          colors={standout.isNew ? ['#FF595A', '#FF7F7F'] : ['rgba(244, 224, 204, 0.2)', 'rgba(244, 224, 204, 0.1)']}
-          style={[styles.standoutGradientRing]}
-        >
-          <View style={styles.standoutInnerRing}>
-            <Image source={{ uri: standout.avatar }} style={styles.standoutAvatar} />
-          </View>
-        </LinearGradient>
-        {standout.isNew && (
-          <View style={styles.newIndicator}>
-            <View style={styles.newIndicatorPulse} />
-          </View>
-        )}
-        <Text style={styles.standoutName}>{standout.name}</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-}
-
 function ConversationItem({ conversation, index }: { conversation: Conversation; index: number }) {
   const translateX = useSharedValue(100);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
     translateX.value = withDelay(
-      (index + 4) * 80,
+      index * 80,
       withSpring(0, {
         damping: 18,
         stiffness: 120,
       })
     );
-    opacity.value = withDelay((index + 4) * 80, withTiming(1, { duration: 600 }));
+    opacity.value = withDelay(index * 80, withTiming(1, { duration: 600 }));
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -246,7 +201,7 @@ export default function ConnectionsScreen() {
     const translateY = interpolate(
       scrollY.value,
       [0, 100],
-      [0, isScrollingUp.value ? 0 : -120],
+      [0, isScrollingUp.value ? 0 : -200],
       Extrapolate.CLAMP
     );
 
@@ -314,30 +269,12 @@ export default function ConnectionsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Sticky INSYNC Header */}
+      {/* Sticky INSYNC Header Component */}
       <Animated.View style={[styles.stickyHeader, stickyHeaderStyle]}>
-        <LinearGradient
-          colors={['rgba(30, 30, 30, 0.98)', 'rgba(18, 18, 18, 0.95)']}
-          style={styles.standoutsSectionGradient}
-        >
-          <View style={styles.standoutsHeader}>
-            <Text style={styles.standoutsLabel}>INSYNC</Text>
-            <View style={styles.standoutsAccent} />
-          </View>
-          <FlatList
-            data={standouts}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.standoutsList}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item, index }) => (
-              <StandoutAvatar standout={item} index={index} />
-            )}
-          />
-        </LinearGradient>
+        <InsyncSection standouts={standouts} />
       </Animated.View>
 
-      {/* Scrollable Content */}
+      {/* Scrollable Conversations */}
       <Animated.ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.conversationsContent}
@@ -374,91 +311,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 1000,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  standoutsSectionGradient: {
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
-  },
-  standoutsHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  standoutsLabel: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#F4E0CC',
-    textAlign: 'center',
-    letterSpacing: 4,
-    marginBottom: 8,
-  },
-  standoutsAccent: {
-    width: 50,
-    height: 3,
-    backgroundColor: '#FF595A',
-    borderRadius: 2,
-  },
-  standoutsList: {
-    paddingHorizontal: 4,
-    gap: 24,
-  },
-  standoutContainer: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  standoutGradientRing: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    padding: 3,
-    marginBottom: 12,
-  },
-  standoutInnerRing: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 41,
-    padding: 2,
-    backgroundColor: '#121212',
-  },
-  standoutAvatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 39,
-  },
-  standoutName: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#F4E0CC',
-    textAlign: 'center',
-    letterSpacing: 0.5,
-  },
-  newIndicator: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#FF595A',
-    borderWidth: 3,
-    borderColor: '#121212',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  newIndicatorPulse: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#F4E0CC',
   },
 
   // Scroll Container Styles
@@ -466,7 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerSpacer: {
-    height: 180, // Height to account for sticky header
+    height: 200, // Height to account for sticky header
   },
   conversationsContent: {
     paddingHorizontal: 16,
