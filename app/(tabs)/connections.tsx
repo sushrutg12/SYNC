@@ -9,6 +9,8 @@ import {
   Platform,
   Dimensions,
   FlatList,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -21,7 +23,7 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { MessageCircle, Send, ArrowLeft } from 'lucide-react-native';
+import { MessageCircle, Send, ArrowLeft, Phone, Video, MoreVertical, Smile } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +34,14 @@ interface Standout {
   isNew: boolean;
 }
 
+interface Message {
+  id: string;
+  text: string;
+  timestamp: string;
+  isOwn: boolean;
+  status?: 'sent' | 'delivered' | 'read';
+}
+
 interface Conversation {
   id: string;
   name: string;
@@ -40,6 +50,8 @@ interface Conversation {
   avatar: string;
   unread: boolean;
   isStandout: boolean;
+  messages: Message[];
+  isOnline?: boolean;
 }
 
 const standouts: Standout[] = [
@@ -78,6 +90,41 @@ const conversations: Conversation[] = [
     avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
     unread: true,
     isStandout: true,
+    isOnline: true,
+    messages: [
+      {
+        id: '1',
+        text: 'Hey! Thanks for connecting. I saw your work on the design system and I\'m really impressed.',
+        timestamp: '10:30 AM',
+        isOwn: false,
+      },
+      {
+        id: '2',
+        text: 'Thank you! I\'d love to learn more about your startup and see how we might collaborate.',
+        timestamp: '10:32 AM',
+        isOwn: true,
+        status: 'read',
+      },
+      {
+        id: '3',
+        text: 'Absolutely! We\'re building a platform that connects entrepreneurs with the right talent. Your design expertise would be invaluable.',
+        timestamp: '10:35 AM',
+        isOwn: false,
+      },
+      {
+        id: '4',
+        text: 'That sounds fascinating! I\'d love to hear more about your vision and discuss potential collaboration opportunities.',
+        timestamp: '10:38 AM',
+        isOwn: true,
+        status: 'read',
+      },
+      {
+        id: '5',
+        text: 'Thanks for connecting! Would love to discuss the design system project we talked about.',
+        timestamp: '10:40 AM',
+        isOwn: false,
+      },
+    ],
   },
   {
     id: '2',
@@ -87,6 +134,28 @@ const conversations: Conversation[] = [
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
     unread: true,
     isStandout: true,
+    isOnline: false,
+    messages: [
+      {
+        id: '1',
+        text: 'Hi! I reviewed your technical proposal and I\'m impressed with the architecture.',
+        timestamp: '9:15 AM',
+        isOwn: false,
+      },
+      {
+        id: '2',
+        text: 'Thanks! I put a lot of thought into making it scalable and maintainable.',
+        timestamp: '9:18 AM',
+        isOwn: true,
+        status: 'read',
+      },
+      {
+        id: '3',
+        text: 'The React architecture looks solid. Let\'s schedule a call to discuss implementation.',
+        timestamp: '9:20 AM',
+        isOwn: false,
+      },
+    ],
   },
   {
     id: '3',
@@ -96,6 +165,28 @@ const conversations: Conversation[] = [
     avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
     unread: false,
     isStandout: true,
+    isOnline: true,
+    messages: [
+      {
+        id: '1',
+        text: 'Great meeting you at the TechCrunch conference yesterday!',
+        timestamp: 'Yesterday 4:30 PM',
+        isOwn: false,
+      },
+      {
+        id: '2',
+        text: 'Likewise! Your presentation on growth marketing was incredible.',
+        timestamp: 'Yesterday 4:32 PM',
+        isOwn: true,
+        status: 'read',
+      },
+      {
+        id: '3',
+        text: 'Great meeting you at the conference! Here\'s my portfolio link as promised.',
+        timestamp: 'Yesterday 4:35 PM',
+        isOwn: false,
+      },
+    ],
   },
   {
     id: '4',
@@ -105,6 +196,28 @@ const conversations: Conversation[] = [
     avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
     unread: false,
     isStandout: false,
+    isOnline: false,
+    messages: [
+      {
+        id: '1',
+        text: 'I\'ve been thinking about our conversation regarding the fintech space.',
+        timestamp: 'Yesterday 2:00 PM',
+        isOwn: false,
+      },
+      {
+        id: '2',
+        text: 'Yes! I think there\'s a real opportunity to disrupt traditional banking.',
+        timestamp: 'Yesterday 2:05 PM',
+        isOwn: true,
+        status: 'delivered',
+      },
+      {
+        id: '3',
+        text: 'The startup idea has real potential. Let\'s explore potential partnerships.',
+        timestamp: 'Yesterday 2:10 PM',
+        isOwn: false,
+      },
+    ],
   },
   {
     id: '5',
@@ -114,6 +227,28 @@ const conversations: Conversation[] = [
     avatar: 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400',
     unread: false,
     isStandout: false,
+    isOnline: true,
+    messages: [
+      {
+        id: '1',
+        text: 'Hey! Hope you\'re doing well.',
+        timestamp: '2 days ago',
+        isOwn: false,
+      },
+      {
+        id: '2',
+        text: 'Hi Sarah! All good here, how about you?',
+        timestamp: '2 days ago',
+        isOwn: true,
+        status: 'read',
+      },
+      {
+        id: '3',
+        text: 'Thanks for the introduction to the team at Google. Really appreciate it!',
+        timestamp: '2 days ago',
+        isOwn: false,
+      },
+    ],
   },
 ];
 
@@ -161,7 +296,11 @@ function StandoutAvatar({ standout, index }: { standout: Standout; index: number
   );
 }
 
-function ConversationItem({ conversation, index }: { conversation: Conversation; index: number }) {
+function ConversationItem({ conversation, index, onPress }: { 
+  conversation: Conversation; 
+  index: number; 
+  onPress: () => void;
+}) {
   const translateX = useSharedValue(100);
   const opacity = useSharedValue(0);
 
@@ -185,7 +324,7 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
 
   return (
     <Animated.View style={animatedStyle}>
-      <TouchableOpacity style={styles.conversationItem} activeOpacity={0.8}>
+      <TouchableOpacity style={styles.conversationItem} onPress={onPress} activeOpacity={0.8}>
         <View style={styles.conversationContent}>
           <View style={styles.avatarContainer}>
             <View style={[
@@ -195,6 +334,7 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
                 styles.conversationAvatarRingActive
             ]}>
               <Image source={{ uri: conversation.avatar }} style={styles.conversationAvatar} />
+              {conversation.isOnline && <View style={styles.onlineIndicator} />}
             </View>
             {conversation.unread && <View style={styles.unreadDot} />}
           </View>
@@ -226,6 +366,169 @@ function ConversationItem({ conversation, index }: { conversation: Conversation;
   );
 }
 
+function MessageBubble({ message, isLast }: { message: Message; isLast: boolean }) {
+  return (
+    <View style={[
+      styles.messageContainer,
+      message.isOwn ? styles.ownMessageContainer : styles.otherMessageContainer,
+      isLast && styles.lastMessage
+    ]}>
+      <View style={[
+        styles.messageBubble,
+        message.isOwn ? styles.ownMessage : styles.receivedMessage
+      ]}>
+        <Text style={[
+          styles.messageText,
+          message.isOwn ? styles.ownMessageText : styles.receivedMessageText
+        ]}>
+          {message.text}
+        </Text>
+      </View>
+      <View style={[
+        styles.messageInfo,
+        message.isOwn ? styles.ownMessageInfo : styles.otherMessageInfo
+      ]}>
+        <Text style={styles.messageTimestamp}>{message.timestamp}</Text>
+        {message.isOwn && message.status && (
+          <Text style={[
+            styles.messageStatus,
+            message.status === 'read' && styles.messageStatusRead
+          ]}>
+            {message.status}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function ChatScreen({ conversation, onBack }: { 
+  conversation: Conversation; 
+  onBack: () => void; 
+}) {
+  const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState(conversation.messages);
+
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      const message: Message = {
+        id: Date.now().toString(),
+        text: newMessage.trim(),
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isOwn: true,
+        status: 'sent',
+      };
+      
+      setMessages(prev => [...prev, message]);
+      setNewMessage('');
+      
+      // Simulate message status updates
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === message.id ? { ...msg, status: 'delivered' } : msg
+        ));
+      }, 1000);
+      
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === message.id ? { ...msg, status: 'read' } : msg
+        ));
+      }, 3000);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.chatContainer} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      {/* Chat Header */}
+      <View style={styles.chatHeader}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={onBack}
+          activeOpacity={0.8}
+        >
+          <ArrowLeft size={24} color="#F5F5F5" strokeWidth={2.5} />
+        </TouchableOpacity>
+        
+        <View style={styles.chatHeaderInfo}>
+          <View style={styles.chatAvatarContainer}>
+            <Image source={{ uri: conversation.avatar }} style={styles.chatAvatar} />
+            {conversation.isOnline && <View style={styles.chatOnlineIndicator} />}
+          </View>
+          <View style={styles.chatHeaderText}>
+            <Text style={styles.chatHeaderName}>{conversation.name}</Text>
+            <Text style={styles.chatHeaderStatus}>
+              {conversation.isOnline ? 'Online' : 'Last seen recently'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.chatHeaderActions}>
+          <TouchableOpacity style={styles.chatActionButton} activeOpacity={0.8}>
+            <Phone size={20} color="#F5F5F5" strokeWidth={2} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.chatActionButton} activeOpacity={0.8}>
+            <Video size={20} color="#F5F5F5" strokeWidth={2} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.chatActionButton} activeOpacity={0.8}>
+            <MoreVertical size={20} color="#F5F5F5" strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Messages */}
+      <ScrollView 
+        style={styles.messagesScrollView}
+        contentContainerStyle={styles.messagesContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.chatIntroContainer}>
+          <Text style={styles.chatIntro}>Your conversation with {conversation.name.split(' ')[0]} started here</Text>
+        </View>
+        
+        {messages.map((message, index) => (
+          <MessageBubble 
+            key={message.id} 
+            message={message} 
+            isLast={index === messages.length - 1}
+          />
+        ))}
+      </ScrollView>
+
+      {/* Input */}
+      <View style={styles.inputContainer}>
+        <View style={styles.inputBar}>
+          <TouchableOpacity style={styles.emojiButton} activeOpacity={0.8}>
+            <Smile size={20} color="#F4E0CC" strokeWidth={2} />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Type a message..."
+            placeholderTextColor="#F4E0CC"
+            value={newMessage}
+            onChangeText={setNewMessage}
+            multiline
+            maxLength={500}
+          />
+          <TouchableOpacity 
+            style={[
+              styles.sendButton,
+              newMessage.trim() && styles.sendButtonActive
+            ]} 
+            onPress={sendMessage}
+            activeOpacity={0.8}
+            disabled={!newMessage.trim()}
+          >
+            <Send size={18} color={newMessage.trim() ? "#F5F5F5" : "#666666"} strokeWidth={2.5} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+}
+
 export default function ConnectionsScreen() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const scrollY = useSharedValue(0);
@@ -247,60 +550,14 @@ export default function ConnectionsScreen() {
     };
   });
 
-  if (selectedChat) {
+  const selectedConversation = conversations.find(c => c.id === selectedChat);
+
+  if (selectedConversation) {
     return (
-      <View style={styles.container}>
-        <View style={styles.chatHeader}>
-          <TouchableOpacity 
-            style={styles.backButton} 
-            onPress={() => setSelectedChat(null)}
-            activeOpacity={0.8}
-          >
-            <ArrowLeft size={24} color="#F5F5F5" strokeWidth={2.5} />
-          </TouchableOpacity>
-          <View style={styles.chatAvatarContainer}>
-            <View style={styles.chatAvatarRing}>
-              <Image 
-                source={{ uri: conversations.find(c => c.id === selectedChat)?.avatar }} 
-                style={styles.chatAvatar} 
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.chatContent}>
-          <Text style={styles.chatIntro}>Your messages began here</Text>
-          
-          <View style={styles.messagesContainer}>
-            <View style={styles.receivedMessage}>
-              <Text style={styles.receivedMessageText}>
-                Hey! Thanks for connecting. I'd love to learn more about your startup.
-              </Text>
-            </View>
-            
-            <View style={styles.sentMessage}>
-              <Text style={styles.sentMessageText}>
-                Absolutely! We're building a platform that connects entrepreneurs with the right investors and mentors.
-              </Text>
-            </View>
-            
-            <View style={styles.receivedMessage}>
-              <Text style={styles.receivedMessageText}>
-                That sounds fascinating! I'd love to hear more about your approach and maybe discuss potential collaboration opportunities.
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <View style={styles.inputBar}>
-            <Text style={styles.inputPlaceholder}>Type a message...</Text>
-            <TouchableOpacity style={styles.sendButton} activeOpacity={0.8}>
-              <Send size={20} color="#F5F5F5" strokeWidth={2.5} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      <ChatScreen 
+        conversation={selectedConversation} 
+        onBack={() => setSelectedChat(null)} 
+      />
     );
   }
 
@@ -354,6 +611,7 @@ export default function ConnectionsScreen() {
               key={conversation.id} 
               conversation={conversation} 
               index={index}
+              onPress={() => setSelectedChat(conversation.id)}
             />
           ))}
         </View>
@@ -525,6 +783,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(245, 245, 245, 0.3)',
     padding: 2,
+    position: 'relative',
   },
   conversationAvatarRingActive: {
     borderColor: '#FF595A',
@@ -534,6 +793,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 25,
+  },
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#121212',
   },
   unreadDot: {
     position: 'absolute',
@@ -583,113 +853,203 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
 
-  // Chat Detail Styles
+  // Chat Screen Styles
+  chatContainer: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
   chatHeader: {
-    paddingTop: Platform.OS === 'ios' ? 70 : 50,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-    alignItems: 'center',
-    backgroundColor: '#1E1E1E',
-    position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 24,
-    top: Platform.OS === 'ios' ? 70 : 50,
-    padding: 8,
-  },
-  chatAvatarContainer: {
-    alignItems: 'center',
-  },
-  chatAvatarRing: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
-    borderColor: '#FF595A',
-    padding: 4,
-  },
-  chatAvatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 46,
-  },
-  chatContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  chatIntro: {
-    fontSize: 14,
-    color: '#F5F5F5',
-    fontFamily: 'Inter-Regular',
-    textAlign: 'center',
-    opacity: 0.6,
-    marginBottom: 24,
-  },
-  messagesContainer: {
-    flex: 1,
-    gap: 16,
-  },
-  receivedMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#F4E0CC',
-    borderRadius: 20,
-    borderBottomLeftRadius: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    maxWidth: '80%',
-  },
-  receivedMessageText: {
-    fontSize: 16,
-    color: '#121212',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 22,
-  },
-  sentMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#1E1E1E',
-    borderRadius: 20,
-    borderBottomRightRadius: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    maxWidth: '80%',
-  },
-  sentMessageText: {
-    fontSize: 16,
-    color: '#F5F5F5',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 22,
-  },
-  inputContainer: {
-    backgroundColor: '#1E1E1E',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
-  },
-  inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#121212',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#FF595A',
+    paddingTop: Platform.OS === 'ios' ? 70 : 50,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    backgroundColor: '#1E1E1E',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
   },
-  inputPlaceholder: {
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
+  chatHeaderInfo: {
     flex: 1,
-    fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  sendButton: {
+  chatAvatarContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  chatAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  chatOnlineIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#1E1E1E',
+  },
+  chatHeaderText: {
+    flex: 1,
+  },
+  chatHeaderName: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#F5F5F5',
+    marginBottom: 2,
+  },
+  chatHeaderStatus: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: '#F4E0CC',
+    opacity: 0.7,
+  },
+  chatHeaderActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  chatActionButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FF595A',
+    backgroundColor: 'rgba(244, 224, 204, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 12,
+  },
+
+  // Messages Styles
+  messagesScrollView: {
+    flex: 1,
+  },
+  messagesContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  chatIntroContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  chatIntro: {
+    fontSize: 12,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+    opacity: 0.6,
+  },
+  messageContainer: {
+    marginBottom: 12,
+  },
+  ownMessageContainer: {
+    alignItems: 'flex-end',
+  },
+  otherMessageContainer: {
+    alignItems: 'flex-start',
+  },
+  messageBubble: {
+    maxWidth: '80%',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  ownMessage: {
+    backgroundColor: '#FF595A',
+    borderBottomRightRadius: 4,
+  },
+  receivedMessage: {
+    backgroundColor: '#F4E0CC',
+    borderBottomLeftRadius: 4,
+  },
+  messageText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    lineHeight: 22,
+  },
+  ownMessageText: {
+    color: '#F5F5F5',
+  },
+  receivedMessageText: {
+    color: '#121212',
+  },
+  messageInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 8,
+  },
+  ownMessageInfo: {
+    justifyContent: 'flex-end',
+  },
+  otherMessageInfo: {
+    justifyContent: 'flex-start',
+  },
+  messageTimestamp: {
+    fontSize: 11,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+    opacity: 0.6,
+  },
+  messageStatus: {
+    fontSize: 11,
+    color: '#F4E0CC',
+    fontFamily: 'Inter-Regular',
+    opacity: 0.6,
+  },
+  messageStatusRead: {
+    color: '#4CAF50',
+  },
+
+  // Input Styles
+  inputContainer: {
+    backgroundColor: '#1E1E1E',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(244, 224, 204, 0.1)',
+  },
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: '#121212',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 224, 204, 0.2)',
+    minHeight: 44,
+  },
+  emojiButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#F5F5F5',
+    fontFamily: 'Inter-Regular',
+    maxHeight: 100,
+    paddingVertical: 8,
+  },
+  sendButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(244, 224, 204, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  sendButtonActive: {
+    backgroundColor: '#FF595A',
   },
 });
