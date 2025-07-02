@@ -492,12 +492,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
+    paddingTop: 40, // Added extra top padding to keep subtitle visible
     paddingBottom: 140,
   },
   cardContainer: {
     position: 'absolute',
     width: CARD_WIDTH,
-    height: height * 0.65,
+    height: height * 0.6, // Slightly reduced height to accommodate top padding
   },
   card: {
     flex: 1,
