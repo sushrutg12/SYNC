@@ -241,7 +241,7 @@ export default function InSyncScreen() {
       
       <Animated.View style={[styles.header, headerAnimatedStyle]}>
         <Text style={styles.logo}>INSYNC</Text>
-        <Text style={styles.subtitle}>Professional networking reimagined</Text>
+        <Text style={styles.subtitle}>AI Driven Matches</Text>
       </Animated.View>
 
       <ScrollView

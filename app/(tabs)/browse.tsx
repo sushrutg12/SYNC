@@ -19,92 +19,61 @@ import Animated, {
   withDelay,
   interpolate,
 } from 'react-native-reanimated';
-import { Settings, X, Star, MapPin, Briefcase, Award, ExternalLink, Code, Palette, TrendingUp, Users, Calendar, Target, Zap } from 'lucide-react-native';
+import { Settings, X, Star, MapPin, Briefcase, Award, ExternalLink, Code, Palette, TrendingUp, Users, Calendar, Target, Zap, ChevronLeft, ChevronRight, Download } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
+
+interface ProjectImage {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+}
 
 interface TalentProfile {
   id: string;
   name: string;
   role: string;
+  education: string;
   avatar: string;
-  portfolioImage: string;
   compatibilityScore: number;
-  location: string;
-  experience: string;
   bio: string;
   skills: string[];
-  achievements: string[];
-  portfolioLinks: { title: string; url: string }[];
-  lookingFor: string;
-  pastProjects: string[];
-  careerGoals: string;
-  workStyle: string[];
-  availability: string;
-  socialLinks: { platform: string; url: string }[];
-  testimonials: { name: string; role: string; quote: string }[];
+  tools: string[];
+  projects: ProjectImage[];
+  profileType: 'creative' | 'engineer' | 'product';
 }
-
-const filterCategories = [
-  'All Talent',
-  'Designers',
-  'Engineers',
-  'Product',
-  'Marketing',
-  'Sales',
-  'Operations',
-];
 
 const talentProfiles: TalentProfile[] = [
   {
     id: '1',
     name: 'Jessica Chen',
     role: 'Senior Product Designer',
+    education: 'Stanford University',
     avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400',
-    portfolioImage: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800',
     compatibilityScore: 8.7,
-    location: 'San Francisco, CA',
-    experience: '6+ years',
-    bio: 'Passionate about creating intuitive user experiences that solve real problems. I specialize in design systems and have led product design at three successful startups. My approach combines user research, data-driven insights, and creative problem-solving to deliver products that users love.',
-    skills: ['UI/UX Design', 'Figma', 'Design Systems', 'User Research', 'Prototyping', 'Sketch', 'Adobe Creative Suite', 'Framer'],
-    achievements: [
-      'Led design for 3 successful product launches reaching 2M+ users',
-      'Increased user engagement by 40% through comprehensive redesign',
-      'Built design system used by 50+ engineers across 4 product teams',
-      'Won "Best Design" award at TechCrunch Disrupt 2023',
-      'Mentored 12 junior designers through design bootcamp program'
-    ],
-    portfolioLinks: [
-      { title: 'Design Portfolio', url: 'jessicachen.design' },
-      { title: 'Dribbble', url: 'dribbble.com/jessicachen' },
-      { title: 'Behance', url: 'behance.net/jessicachen' }
-    ],
-    lookingFor: 'Early-stage startups focused on consumer products where I can have significant design impact and help shape the product vision. Particularly interested in fintech, healthtech, or sustainability-focused companies.',
-    pastProjects: [
-      'Redesigned mobile banking app used by 2M+ customers',
-      'Created comprehensive design system for B2B SaaS platform',
-      'Led UX research initiative for healthcare startup (Series A)',
-      'Designed award-winning e-commerce mobile experience',
-      'Built accessibility-first design framework'
-    ],
-    careerGoals: 'Looking to transition into a Head of Design role at a mission-driven startup where I can build and lead a design team while continuing to be hands-on with product strategy.',
-    workStyle: ['Collaborative', 'Data-driven', 'User-centric', 'Iterative', 'Cross-functional'],
-    availability: 'Available immediately',
-    socialLinks: [
-      { platform: 'LinkedIn', url: 'linkedin.com/in/jessicachen' },
-      { platform: 'Twitter', url: 'twitter.com/jessicachen' },
-      { platform: 'Medium', url: 'medium.com/@jessicachen' }
-    ],
-    testimonials: [
+    bio: 'Passionate about creating intuitive user experiences that solve real problems. I specialize in design systems and have led product design at three successful startups.',
+    skills: ['UI/UX Design', 'Design Systems', 'User Research', 'Prototyping'],
+    tools: ['Figma', 'Sketch', 'Adobe Creative Suite', 'Framer'],
+    profileType: 'creative',
+    projects: [
       {
-        name: 'Sarah Kim',
-        role: 'VP of Product at TechFlow',
-        quote: 'Jessica is one of the most talented designers I\'ve worked with. Her ability to translate complex user needs into elegant solutions is exceptional.'
+        id: '1',
+        url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Banking App Redesign',
+        description: 'Complete redesign of mobile banking experience for 2M+ users'
       },
       {
-        name: 'Mike Rodriguez',
-        role: 'CEO at StartupX',
-        quote: 'Jessica transformed our entire product experience. User satisfaction increased by 60% after her redesign.'
+        id: '2',
+        url: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Design System',
+        description: 'Comprehensive design system used by 50+ engineers'
+      },
+      {
+        id: '3',
+        url: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Healthcare Platform',
+        description: 'UX research and design for Series A healthcare startup'
       }
     ]
   },
@@ -112,107 +81,128 @@ const talentProfiles: TalentProfile[] = [
     id: '2',
     name: 'Alexander Rodriguez',
     role: 'Full-Stack Engineer',
+    education: 'UC Berkeley',
     avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400',
-    portfolioImage: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=800',
     compatibilityScore: 9.2,
-    location: 'New York, NY',
-    experience: '8+ years',
-    bio: 'Full-stack engineer with a passion for building scalable systems that can handle millions of users. I love working with startups to turn ambitious ideas into reality. My expertise spans from frontend React applications to backend microservices and cloud infrastructure.',
-    skills: ['React', 'Node.js', 'Python', 'AWS', 'PostgreSQL', 'TypeScript', 'Docker', 'Kubernetes', 'GraphQL', 'Redis'],
-    achievements: [
-      'Scaled platform from 100K to 5M+ users with 99.9% uptime',
-      'Reduced server costs by 60% through optimization and architecture redesign',
-      'Led engineering team of 12 developers across 3 product areas',
-      'Open source contributor with 10K+ GitHub stars across projects',
-      'Speaker at 5 major tech conferences including React Conf'
-    ],
-    portfolioLinks: [
-      { title: 'GitHub', url: 'github.com/alexrodriguez' },
-      { title: 'Personal Site', url: 'alexrodriguez.dev' },
-      { title: 'Tech Blog', url: 'blog.alexrodriguez.dev' }
-    ],
-    lookingFor: 'Technical co-founder opportunities or senior engineering roles at startups building innovative products with strong technical challenges. Particularly interested in AI/ML, fintech, or developer tools.',
-    pastProjects: [
-      'Built real-time collaboration platform handling 1M+ concurrent users',
-      'Architected microservices infrastructure for fintech startup (Series B)',
-      'Created ML-powered recommendation engine increasing engagement by 35%',
-      'Developed open-source React component library (50K+ downloads)',
-      'Built distributed system for processing 10TB+ data daily'
-    ],
-    careerGoals: 'Seeking CTO role at early-stage startup where I can build the technical foundation and culture while staying hands-on with architecture and mentoring engineers.',
-    workStyle: ['Technical leadership', 'Mentoring-focused', 'Architecture-first', 'Performance-oriented', 'Open source advocate'],
-    availability: 'Available in 4 weeks',
-    socialLinks: [
-      { platform: 'LinkedIn', url: 'linkedin.com/in/alexrodriguez' },
-      { platform: 'Twitter', url: 'twitter.com/alexdev' },
-      { platform: 'Stack Overflow', url: 'stackoverflow.com/users/alexrodriguez' }
-    ],
-    testimonials: [
+    bio: 'Full-stack engineer with a passion for building scalable systems that can handle millions of users. I love working with startups to turn ambitious ideas into reality.',
+    skills: ['React', 'Node.js', 'Python', 'System Architecture'],
+    tools: ['AWS', 'Docker', 'PostgreSQL', 'TypeScript'],
+    profileType: 'engineer',
+    projects: [
       {
-        name: 'Jennifer Liu',
-        role: 'CTO at ScaleUp Inc',
-        quote: 'Alex is a rare combination of technical excellence and leadership skills. He built our entire platform architecture from scratch.'
+        id: '1',
+        url: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Real-time Platform',
+        description: 'Built collaboration platform handling 1M+ concurrent users'
       },
       {
-        name: 'David Park',
-        role: 'Engineering Manager at TechCorp',
-        quote: 'Working with Alex elevated our entire team\'s technical standards. His mentorship was invaluable.'
+        id: '2',
+        url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Microservices Architecture',
+        description: 'Architected infrastructure for fintech startup (Series B)'
+      },
+      {
+        id: '3',
+        url: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'ML Recommendation Engine',
+        description: 'Created ML-powered system increasing engagement by 35%'
       }
     ]
   },
   {
     id: '3',
     name: 'Priya Sharma',
-    role: 'Growth Marketing Lead',
+    role: 'VP of Product',
+    education: 'MIT Sloan',
     avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
-    portfolioImage: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800',
     compatibilityScore: 8.9,
-    location: 'Austin, TX',
-    experience: '5+ years',
-    bio: 'Growth marketing expert who loves turning data into actionable insights that drive exponential growth. I specialize in building growth engines from scratch and have helped multiple startups achieve product-market fit through strategic experimentation and optimization.',
-    skills: ['Growth Marketing', 'Analytics', 'A/B Testing', 'SEO', 'Content Strategy', 'Paid Acquisition', 'Email Marketing', 'Conversion Optimization'],
-    achievements: [
-      'Grew user base from 10K to 1M in 18 months through growth hacking',
-      'Achieved 3x ROI on marketing spend across all channels',
-      'Built growth team from 1 to 8 people with clear processes',
-      'Launched viral referral program resulting in 40% organic growth',
-      'Increased conversion rates by 150% through systematic optimization'
-    ],
-    portfolioLinks: [
-      { title: 'Marketing Portfolio', url: 'priyasharma.marketing' },
-      { title: 'Growth Case Studies', url: 'growth.priyasharma.com' },
-      { title: 'Marketing Blog', url: 'blog.priyasharma.marketing' }
-    ],
-    lookingFor: 'Head of Growth roles at early-stage B2B or B2C startups where I can build the growth function from the ground up and work directly with founders on growth strategy.',
-    pastProjects: [
-      'Launched viral referral program generating 40% month-over-month growth',
-      'Built content marketing strategy reaching 500K+ monthly views',
-      'Optimized conversion funnel resulting in 2x improvement in LTV/CAC',
-      'Created influencer marketing program with 5x ROI',
-      'Developed growth experimentation framework adopted by 3 startups'
-    ],
-    careerGoals: 'Aiming to become VP of Growth at a unicorn startup while building my personal brand as a growth marketing thought leader through speaking and writing.',
-    workStyle: ['Data-driven', 'Experimental', 'Cross-functional', 'Results-oriented', 'Creative problem-solving'],
-    availability: 'Available in 2 weeks',
-    socialLinks: [
-      { platform: 'LinkedIn', url: 'linkedin.com/in/priyasharma' },
-      { platform: 'Twitter', url: 'twitter.com/priyagrowth' },
-      { platform: 'Medium', url: 'medium.com/@priyasharma' }
-    ],
-    testimonials: [
+    bio: 'Growth marketing expert who loves turning data into actionable insights that drive exponential growth. I specialize in building growth engines from scratch.',
+    skills: ['Product Strategy', 'Growth Marketing', 'Analytics', 'A/B Testing'],
+    tools: ['Mixpanel', 'Amplitude', 'Figma', 'SQL'],
+    profileType: 'product',
+    projects: [
       {
-        name: 'Tom Wilson',
-        role: 'CEO at GrowthCo',
-        quote: 'Priya single-handedly transformed our growth trajectory. Her strategic thinking and execution are world-class.'
+        id: '1',
+        url: 'https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Growth Strategy',
+        description: 'Grew user base from 10K to 1M in 18 months'
       },
       {
-        name: 'Lisa Chen',
-        role: 'VP Marketing at StartupY',
-        quote: 'Priya\'s growth experiments consistently delivered results. She has an incredible intuition for what will work.'
+        id: '2',
+        url: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Viral Referral Program',
+        description: 'Launched program resulting in 40% organic growth'
+      },
+      {
+        id: '3',
+        url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800',
+        title: 'Conversion Optimization',
+        description: 'Increased conversion rates by 150% through systematic testing'
       }
     ]
   },
 ];
+
+function ProjectCarousel({ projects, profileType }: { projects: ProjectImage[]; profileType: string }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextProject = () => {
+    setCurrentIndex((prev) => (prev + 1) % projects.length);
+  };
+
+  const prevProject = () => {
+    setCurrentIndex((prev) => (prev - 1 + projects.length) % projects.length);
+  };
+
+  return (
+    <View style={styles.projectCarousel}>
+      <View style={styles.projectImageContainer}>
+        <Image source={{ uri: projects[currentIndex].url }} style={styles.projectImage} />
+        
+        {/* Navigation Arrows */}
+        {projects.length > 1 && (
+          <>
+            <TouchableOpacity 
+              style={[styles.carouselButton, styles.carouselButtonLeft]} 
+              onPress={prevProject}
+              activeOpacity={0.8}
+            >
+              <ChevronLeft size={20} color="#F4E0CC" strokeWidth={2.5} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.carouselButton, styles.carouselButtonRight]} 
+              onPress={nextProject}
+              activeOpacity={0.8}
+            >
+              <ChevronRight size={20} color="#F4E0CC" strokeWidth={2.5} />
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Project Info Overlay */}
+        <View style={styles.projectOverlay}>
+          <Text style={styles.projectTitle}>{projects[currentIndex].title}</Text>
+          <Text style={styles.projectDescription}>{projects[currentIndex].description}</Text>
+        </View>
+
+        {/* Dots Indicator */}
+        {projects.length > 1 && (
+          <View style={styles.dotsContainer}>
+            {projects.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === currentIndex && styles.activeDot
+                ]}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
 
 function ProfileCard({ profile, index, onPass, onLike }: { 
   profile: TalentProfile; 
@@ -255,189 +245,99 @@ function ProfileCard({ profile, index, onPass, onLike }: {
   const compatibilityWidth = (profile.compatibilityScore / 10) * 100;
 
   return (
-    <Animated.View style={[styles.profileCard, animatedStyle]}>
-      <View style={styles.cardContainer}>
-        {/* Profile Header */}
-        <View style={styles.profileHeader}>
-          <View style={styles.avatarContainer}>
-            <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+    <Animated.View style={[styles.profileContainer, animatedStyle]}>
+      {/* Header Card - Name, Title, Education */}
+      <View style={styles.headerCard}>
+        <View style={styles.avatarContainer}>
+          <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+        </View>
+        <Text style={styles.profileName}>{profile.name}</Text>
+        <View style={styles.titleEducationRow}>
+          <View style={styles.titleBubble}>
+            <Text style={styles.titleText}>{profile.role}</Text>
           </View>
-          <View style={styles.profileBasicInfo}>
-            <Text style={styles.profileName}>{profile.name}</Text>
-            <Text style={styles.profileRole}>{profile.role}</Text>
+          <View style={styles.educationBubble}>
+            <Text style={styles.educationText}>{profile.education}</Text>
           </View>
         </View>
+      </View>
 
-        {/* Compatibility Score */}
-        <View style={styles.compatibilitySection}>
-          <Text style={styles.compatibilityLabel}>Compatibility Score</Text>
-          <View style={styles.compatibilityBar}>
-            <View style={styles.compatibilityBarBackground}>
-              <View 
-                style={[
-                  styles.compatibilityBarFill, 
-                  { width: `${compatibilityWidth}%` }
-                ]} 
-              />
-            </View>
-            <Text style={styles.compatibilityScore}>{profile.compatibilityScore}/10</Text>
+      {/* Bio Card */}
+      <View style={styles.bioCard}>
+        <Text style={styles.bioText}>{profile.bio}</Text>
+      </View>
+
+      {/* Compatibility Card */}
+      <View style={styles.compatibilityCard}>
+        <View style={styles.compatibilityHeader}>
+          <Text style={styles.compatibilityLabel}>Compatibility</Text>
+          <Text style={styles.compatibilityScore}>{profile.compatibilityScore}/10</Text>
+        </View>
+        <View style={styles.compatibilityBarContainer}>
+          <View style={styles.compatibilityBarBackground}>
+            <View 
+              style={[
+                styles.compatibilityBarFill, 
+                { width: `${compatibilityWidth}%` }
+              ]} 
+            />
           </View>
         </View>
+      </View>
 
-        {/* Portfolio Image */}
-        <View style={styles.portfolioImageContainer}>
-          <Image source={{ uri: profile.portfolioImage }} style={styles.portfolioImage} />
-        </View>
+      {/* Projects Card */}
+      <View style={styles.projectsCard}>
+        <Text style={styles.sectionTitle}>Featured Work</Text>
+        <ProjectCarousel projects={profile.projects} profileType={profile.profileType} />
+      </View>
 
-        {/* Scrollable Content */}
-        <View style={styles.profileContent}>
-          {/* Basic Details */}
-          <View style={styles.detailsSection}>
-            <View style={styles.detailRow}>
-              <MapPin size={18} color="#F4E0CC" strokeWidth={2} />
-              <Text style={styles.detailText}>{profile.location}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Briefcase size={18} color="#F4E0CC" strokeWidth={2} />
-              <Text style={styles.detailText}>{profile.experience} experience</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Calendar size={18} color="#F4E0CC" strokeWidth={2} />
-              <Text style={styles.detailText}>{profile.availability}</Text>
-            </View>
-          </View>
-
-          {/* About Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About</Text>
-            <Text style={styles.bioText}>{profile.bio}</Text>
-          </View>
-
-          {/* Core Skills */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Core Skills</Text>
-            <View style={styles.skillsContainer}>
-              {profile.skills.map((skill, skillIndex) => (
-                <View key={skillIndex} style={styles.skillTag}>
-                  <Text style={styles.skillText}>{skill}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Key Achievements */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Key Achievements</Text>
-            {profile.achievements.map((achievement, achievementIndex) => (
-              <View key={achievementIndex} style={styles.achievementItem}>
-                <Award size={16} color="#FF595A" strokeWidth={2} />
-                <Text style={styles.achievementText}>{achievement}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Portfolio Links */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Portfolio & Work</Text>
-            {profile.portfolioLinks.map((link, linkIndex) => (
-              <TouchableOpacity key={linkIndex} style={styles.portfolioLink} activeOpacity={0.8}>
-                <ExternalLink size={16} color="#FF595A" strokeWidth={2} />
-                <Text style={styles.portfolioLinkText}>{link.title}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* What I'm Looking For */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>What I'm Looking For</Text>
-            <Text style={styles.lookingForText}>{profile.lookingFor}</Text>
-          </View>
-
-          {/* Career Goals */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Career Goals</Text>
-            <View style={styles.goalContainer}>
-              <Target size={18} color="#FF595A" strokeWidth={2} />
-              <Text style={styles.goalText}>{profile.careerGoals}</Text>
-            </View>
-          </View>
-
-          {/* Work Style */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Work Style</Text>
-            <View style={styles.workStyleContainer}>
-              {profile.workStyle.map((style, styleIndex) => (
-                <View key={styleIndex} style={styles.workStyleTag}>
-                  <Users size={14} color="#F4E0CC" strokeWidth={2} />
-                  <Text style={styles.workStyleText}>{style}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Recent Projects */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Projects</Text>
-            {profile.pastProjects.map((project, projectIndex) => (
-              <View key={projectIndex} style={styles.projectItem}>
-                <View style={styles.projectBullet} />
-                <Text style={styles.projectText}>{project}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* Social Links */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Connect</Text>
-            <View style={styles.socialLinksContainer}>
-              {profile.socialLinks.map((social, socialIndex) => (
-                <TouchableOpacity key={socialIndex} style={styles.socialLink} activeOpacity={0.8}>
-                  <ExternalLink size={16} color="#FF595A" strokeWidth={2} />
-                  <Text style={styles.socialLinkText}>{social.platform}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Testimonials */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>What Others Say</Text>
-            {profile.testimonials.map((testimonial, testimonialIndex) => (
-              <View key={testimonialIndex} style={styles.testimonialContainer}>
-                <Text style={styles.testimonialQuote}>"{testimonial.quote}"</Text>
-                <View style={styles.testimonialAuthor}>
-                  <Text style={styles.testimonialName}>{testimonial.name}</Text>
-                  <Text style={styles.testimonialRole}>{testimonial.role}</Text>
-                </View>
+      {/* Skills & Tools Card */}
+      <View style={styles.skillsCard}>
+        <Text style={styles.sectionTitle}>Skills & Tools</Text>
+        <View style={styles.skillsSection}>
+          <Text style={styles.skillsSubtitle}>Skills</Text>
+          <View style={styles.skillsContainer}>
+            {profile.skills.map((skill, skillIndex) => (
+              <View key={skillIndex} style={styles.skillBubble}>
+                <Text style={styles.skillText}>{skill}</Text>
               </View>
             ))}
           </View>
         </View>
+        <View style={styles.skillsSection}>
+          <Text style={styles.skillsSubtitle}>Tools</Text>
+          <View style={styles.skillsContainer}>
+            {profile.tools.map((tool, toolIndex) => (
+              <View key={toolIndex} style={styles.skillBubble}>
+                <Text style={styles.skillText}>{tool}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      {/* Resume Card */}
+      <View style={styles.resumeCard}>
+        <TouchableOpacity style={styles.resumeButton} activeOpacity={0.8}>
+          <Download size={20} color="#F4E0CC" strokeWidth={2} />
+          <Text style={styles.resumeText}>View Resume</Text>
+        </TouchableOpacity>
       </View>
     </Animated.View>
   );
 }
 
 export default function BrowseScreen() {
-  const [activeFilter, setActiveFilter] = useState('All Talent');
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const headerOpacity = useSharedValue(0);
-  const filtersOpacity = useSharedValue(0);
 
   useEffect(() => {
     headerOpacity.value = withTiming(1, { duration: 800 });
-    filtersOpacity.value = withDelay(200, withTiming(1, { duration: 600 }));
   }, []);
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: headerOpacity.value,
-    };
-  });
-
-  const filtersAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: filtersOpacity.value,
     };
   });
 
@@ -448,7 +348,6 @@ export default function BrowseScreen() {
   };
 
   const handleLike = () => {
-    // Handle like action (e.g., add to favorites, send connection request)
     console.log(`Liked ${talentProfiles[currentProfileIndex].name}`);
     if (currentProfileIndex < talentProfiles.length - 1) {
       setCurrentProfileIndex(currentProfileIndex + 1);
@@ -467,11 +366,11 @@ export default function BrowseScreen() {
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Profile Card */}
+      {/* Profile Cards */}
       {currentProfile && (
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           <ProfileCard
@@ -497,8 +396,9 @@ export default function BrowseScreen() {
         </View>
       )}
 
+      {/* Action Buttons */}
       {currentProfile && (
-        <View style={styles.actionButtons} pointerEvents="box-none">
+        <View style={styles.actionButtons}>
           <TouchableOpacity 
             style={styles.passButton} 
             onPress={handlePass}
@@ -541,320 +441,288 @@ const styles = StyleSheet.create({
   settingsButton: {
     padding: 8,
   },
-  filtersSection: {
-    paddingBottom: 20,
+  scrollContent: {
+    paddingBottom: 120,
   },
-  filtersList: {
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  filterChip: {
-    backgroundColor: '#1E1E1E',
+  profileContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    gap: 16,
   },
-  filterChipActive: {
-    backgroundColor: '#F4E0CC',
-    borderColor: '#F4E0CC',
-  },
-  filterChipText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#F4E0CC',
-    letterSpacing: 0.5,
-  },
-  filterChipTextActive: {
-    color: '#121212',
-    fontFamily: 'Inter-Bold',
-  },
-  profileCard: {
-    flex: 1,
-    marginHorizontal: 20,
-    marginBottom: 120,
-  },
-  cardContainer: {
-    flex: 1,
-    backgroundColor: '#1E1E1E',
-    borderRadius: 24,
-    overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  
+  // Header Card Styles - Updated for vertical layout
+  headerCard: {
+    backgroundColor: 'transparent', // Removed grey background
+    borderRadius: 20,
     padding: 24,
-    paddingBottom: 16,
+    alignItems: 'center', // Center everything horizontally
   },
   avatarContainer: {
-    marginRight: 16,
+    alignItems: 'center',
+    marginBottom: 16, // Space between avatar and name
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
     borderColor: '#F4E0CC',
   },
-  profileBasicInfo: {
-    flex: 1,
-  },
   profileName: {
-    fontSize: 24,
+    fontSize: 32,
     fontFamily: 'Inter-Bold',
     color: '#F4E0CC',
-    marginBottom: 4,
+    marginBottom: 16, // Space between name and bubbles
     letterSpacing: 0.5,
+    textAlign: 'center',
   },
-  profileRole: {
+  titleEducationRow: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center', // Center the bubbles
+  },
+  titleBubble: {
+    backgroundColor: '#FF595A',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  titleText: {
     fontSize: 16,
     fontFamily: 'Inter-Medium',
     color: '#F4E0CC',
-    opacity: 0.8,
   },
-  compatibilitySection: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+  educationBubble: {
+    backgroundColor: '#333333',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
   },
-  compatibilityLabel: {
-    fontSize: 14,
+  educationText: {
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
     color: '#F4E0CC',
-    marginBottom: 8,
+  },
+
+  // Bio Card Styles
+  bioCard: {
+    backgroundColor: '#F4E0CC',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  bioText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#121212',
+    lineHeight: 24,
+  },
+
+  // Compatibility Card Styles
+  compatibilityCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  compatibilityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  compatibilityLabel: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: '#F4E0CC',
     letterSpacing: 0.5,
   },
-  compatibilityBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  compatibilityScore: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#FF595A',
+    letterSpacing: 0.5,
+  },
+  compatibilityBarContainer: {
+    width: '100%',
   },
   compatibilityBarBackground: {
-    flex: 1,
-    height: 8,
+    height: 12,
     backgroundColor: '#333333',
-    borderRadius: 4,
+    borderRadius: 6,
     overflow: 'hidden',
   },
   compatibilityBarFill: {
     height: '100%',
     backgroundColor: '#FF595A',
-    borderRadius: 4,
+    borderRadius: 6,
   },
-  compatibilityScore: {
-    fontSize: 16,
-    fontFamily: 'Inter-Bold',
-    color: '#FF595A',
-    letterSpacing: 0.5,
-  },
-  portfolioImageContainer: {
-    height: 200,
-    marginBottom: 20,
-  },
-  portfolioImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  profileContent: {
-    flex: 1,
-  },
-  detailsSection: {
-    gap: 12,
-    marginBottom: 24,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  detailText: {
-    fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    opacity: 0.9,
-  },
-  section: {
-    marginBottom: 32,
+
+  // Projects Card Styles
+  projectsCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   sectionTitle: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
     color: '#F4E0CC',
-    marginBottom: 16,
+    marginBottom: 20,
     letterSpacing: 0.5,
   },
-  bioText: {
-    fontSize: 16,
+  projectCarousel: {
+    height: 280,
+  },
+  projectImageContainer: {
+    position: 'relative',
+    height: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  projectImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  carouselButton: {
+    position: 'absolute',
+    top: '50%',
+    transform: [{ translateY: -20 }],
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  carouselButtonLeft: {
+    left: 12,
+  },
+  carouselButtonRight: {
+    right: 12,
+  },
+  projectOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 20,
+  },
+  projectTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
     color: '#F4E0CC',
+    marginBottom: 8,
+  },
+  projectDescription: {
+    fontSize: 14,
     fontFamily: 'Inter-Regular',
-    lineHeight: 24,
+    color: '#F4E0CC',
     opacity: 0.9,
+    lineHeight: 20,
+  },
+  dotsContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(244, 224, 204, 0.4)',
+  },
+  activeDot: {
+    backgroundColor: '#F4E0CC',
+  },
+
+  // Skills Card Styles
+  skillsCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  skillsSection: {
+    marginBottom: 20,
+  },
+  skillsSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#F4E0CC',
+    marginBottom: 12,
+    opacity: 0.8,
   },
   skillsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
   },
-  skillTag: {
-    backgroundColor: '#121212',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 18,
+  skillBubble: {
+    backgroundColor: '#333333',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#FF595A',
   },
   skillText: {
     fontSize: 14,
-    color: '#F4E0CC',
     fontFamily: 'Inter-Medium',
-  },
-  achievementItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginBottom: 16,
-  },
-  achievementText: {
-    flex: 1,
-    fontSize: 16,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 22,
-    opacity: 0.9,
   },
-  portfolioLink: {
+
+  // Resume Card Styles
+  resumeCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  resumeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-  },
-  portfolioLinkText: {
-    fontSize: 16,
-    color: '#FF595A',
-    fontFamily: 'Inter-Medium',
-    textDecorationLine: 'underline',
-  },
-  lookingForText: {
-    fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 24,
-    opacity: 0.9,
-  },
-  goalContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  goalText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 24,
-    opacity: 0.9,
-  },
-  workStyleContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  workStyleTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#121212',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#F4E0CC',
-  },
-  workStyleText: {
-    fontSize: 14,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Medium',
-  },
-  projectItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginBottom: 12,
-  },
-  projectBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    justifyContent: 'center',
     backgroundColor: '#FF595A',
-    marginTop: 8,
-  },
-  projectText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 22,
-    opacity: 0.9,
-  },
-  socialLinksContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  socialLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-  },
-  socialLinkText: {
-    fontSize: 16,
-    color: '#FF595A',
-    fontFamily: 'Inter-Medium',
-    textDecorationLine: 'underline',
-  },
-  testimonialContainer: {
-    backgroundColor: '#121212',
-    padding: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: 16,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#FF595A',
+    gap: 12,
   },
-  testimonialQuote: {
+  resumeText: {
     fontSize: 16,
-    color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 24,
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  testimonialAuthor: {
-    borderTopWidth: 1,
-    borderTopColor: '#333333',
-    paddingTop: 12,
-  },
-  testimonialName: {
-    fontSize: 14,
-    color: '#F4E0CC',
     fontFamily: 'Inter-Bold',
-    marginBottom: 2,
-  },
-  testimonialRole: {
-    fontSize: 12,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
-    opacity: 0.7,
+    letterSpacing: 0.5,
   },
+
+  // Action Buttons
   actionButtons: {
     position: 'absolute',
     bottom: 20,
@@ -872,10 +740,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
@@ -890,16 +755,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 2,
     borderColor: '#F4E0CC',
   },
+
+  // No More Profiles
   noMoreProfiles: {
     flex: 1,
     alignItems: 'center',
