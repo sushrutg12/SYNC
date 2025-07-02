@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Image,
   TouchableOpacity,
   Dimensions,
@@ -16,11 +15,18 @@ import Animated, {
   withTiming,
   withSpring,
   withDelay,
+  useAnimatedGestureHandler,
+  runOnJS,
+  interpolate,
+  Extrapolate,
 } from 'react-native-reanimated';
+import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageCircle, Heart, X, MapPin, Briefcase, Award, Star } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
+const CARD_WIDTH = width - 48;
+const SWIPE_THRESHOLD = width * 0.3;
 
 interface Profile {
   id: string;
@@ -80,139 +86,247 @@ const profiles: Profile[] = [
     achievements: 15,
     rating: 4.7,
   },
+  {
+    id: '4',
+    name: 'David Kim',
+    title: 'Senior Software Engineer',
+    company: 'Google',
+    match: '87',
+    image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400',
+    age: 26,
+    location: 'Mountain View, CA',
+    experience: '4+ years',
+    skills: ['Python', 'Machine Learning', 'Cloud'],
+    achievements: 9,
+    rating: 4.6,
+  },
+  {
+    id: '5',
+    name: 'Sarah Wilson',
+    title: 'Marketing Director',
+    company: 'Netflix',
+    match: '92',
+    image: 'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=400',
+    age: 30,
+    location: 'Los Angeles, CA',
+    experience: '7+ years',
+    skills: ['Brand Strategy', 'Digital Marketing', 'Analytics'],
+    achievements: 14,
+    rating: 4.8,
+  },
 ];
 
-function ProfileCard({ profile, index }: { profile: Profile; index: number }) {
-  const translateY = useSharedValue(100);
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.9);
+interface SwipeableCardProps {
+  profile: Profile;
+  index: number;
+  totalCards: number;
+  onSwipeLeft: () => void;
+  onSwipeRight: () => void;
+  isTop: boolean;
+}
+
+function SwipeableCard({ profile, index, totalCards, onSwipeLeft, onSwipeRight, isTop }: SwipeableCardProps) {
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const rotate = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
-    translateY.value = withDelay(
-      index * 150,
-      withSpring(0, {
-        damping: 18,
-        stiffness: 120,
-      })
-    );
-    opacity.value = withDelay(index * 150, withTiming(1, { duration: 800 }));
-    scale.value = withDelay(
-      index * 150,
-      withSpring(1, {
-        damping: 15,
-        stiffness: 140,
-      })
-    );
-  }, []);
+    // Stagger the cards with slight offset and scale
+    const delay = index * 50;
+    const initialScale = 1 - (index * 0.05);
+    const initialY = index * 8;
+    
+    scale.value = withDelay(delay, withSpring(initialScale, {
+      damping: 15,
+      stiffness: 140,
+    }));
+    
+    translateY.value = withDelay(delay, withSpring(initialY, {
+      damping: 18,
+      stiffness: 120,
+    }));
+  }, [index]);
+
+  const gestureHandler = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
+    onStart: () => {
+      if (!isTop) return;
+    },
+    onActive: (event) => {
+      if (!isTop) return;
+      
+      translateX.value = event.translationX;
+      rotate.value = interpolate(
+        event.translationX,
+        [-width, width],
+        [-30, 30],
+        Extrapolate.CLAMP
+      );
+    },
+    onEnd: (event) => {
+      if (!isTop) return;
+      
+      const shouldSwipeLeft = event.translationX < -SWIPE_THRESHOLD;
+      const shouldSwipeRight = event.translationX > SWIPE_THRESHOLD;
+      
+      if (shouldSwipeLeft) {
+        translateX.value = withTiming(-width * 1.5, { duration: 300 });
+        rotate.value = withTiming(-45, { duration: 300 });
+        opacity.value = withTiming(0, { duration: 300 });
+        runOnJS(onSwipeLeft)();
+      } else if (shouldSwipeRight) {
+        translateX.value = withTiming(width * 1.5, { duration: 300 });
+        rotate.value = withTiming(45, { duration: 300 });
+        opacity.value = withTiming(0, { duration: 300 });
+        runOnJS(onSwipeRight)();
+      } else {
+        translateX.value = withSpring(0);
+        rotate.value = withSpring(0);
+      }
+    },
+  });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
+        { translateX: translateX.value },
         { translateY: translateY.value },
+        { rotate: `${rotate.value}deg` },
         { scale: scale.value },
       ],
       opacity: opacity.value,
+      zIndex: totalCards - index,
     };
   });
 
-  const handleMessage = () => {
-    console.log(`Message ${profile.name}`);
-  };
+  const overlayStyle = useAnimatedStyle(() => {
+    const leftOpacity = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, 0],
+      [1, 0],
+      Extrapolate.CLAMP
+    );
+    
+    const rightOpacity = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0, 1],
+      Extrapolate.CLAMP
+    );
 
-  const handleLike = () => {
-    console.log(`Connect with ${profile.name}`);
-  };
+    return {
+      opacity: isTop ? Math.max(leftOpacity, rightOpacity) : 0,
+    };
+  });
 
-  const handlePass = () => {
-    console.log(`Pass ${profile.name}`);
-  };
+  const leftOverlayStyle = useAnimatedStyle(() => {
+    const leftOpacity = interpolate(
+      translateX.value,
+      [-SWIPE_THRESHOLD, 0],
+      [1, 0],
+      Extrapolate.CLAMP
+    );
+
+    return {
+      opacity: isTop ? leftOpacity : 0,
+    };
+  });
+
+  const rightOverlayStyle = useAnimatedStyle(() => {
+    const rightOpacity = interpolate(
+      translateX.value,
+      [0, SWIPE_THRESHOLD],
+      [0, 1],
+      Extrapolate.CLAMP
+    );
+
+    return {
+      opacity: isTop ? rightOpacity : 0,
+    };
+  });
 
   return (
-    <Animated.View style={[styles.cardContainer, animatedStyle]}>
-      <View style={styles.card}>
-        <LinearGradient
-          colors={['#F4E0CC', '#ffffff', '#F4E0CC']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.cardGradient}>
-          
-          {/* Header Section */}
-          <View style={styles.cardHeader}>
-            <View style={styles.profileImageContainer}>
-              <Image source={{ uri: profile.image }} style={styles.profileImage} />
-              <View style={styles.matchBadge}>
-                <Text style={styles.matchText}>{profile.match}%</Text>
-              </View>
-              <View style={styles.ratingBadge}>
-                <Star size={12} color="#000000" fill="#000000" />
-                <Text style={styles.ratingText}>{profile.rating}</Text>
-              </View>
-            </View>
+    <PanGestureHandler onGestureEvent={gestureHandler} enabled={isTop}>
+      <Animated.View style={[styles.cardContainer, animatedStyle]}>
+        <View style={styles.card}>
+          <LinearGradient
+            colors={['#F4E0CC', '#ffffff', '#F4E0CC']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardGradient}>
             
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{profile.name}</Text>
-              <Text style={styles.profileTitle}>{profile.title}</Text>
-              <View style={styles.companyContainer}>
-                <Briefcase size={16} color="#FF595A" strokeWidth={2.5} />
-                <Text style={styles.companyText}>{profile.company}</Text>
+            {/* Swipe Overlays */}
+            <Animated.View style={[styles.swipeOverlay, styles.leftOverlay, leftOverlayStyle]}>
+              <View style={styles.overlayContent}>
+                <X size={60} color="#FF595A" strokeWidth={4} />
+                <Text style={styles.overlayText}>PASS</Text>
               </View>
-            </View>
-          </View>
-
-          {/* Details Section */}
-          <View style={styles.detailsSection}>
-            <View style={styles.detailRow}>
-              <MapPin size={18} color="#666666" strokeWidth={2} />
-              <Text style={styles.detailText}>{profile.location}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Award size={18} color="#666666" strokeWidth={2} />
-              <Text style={styles.detailText}>{profile.experience} • {profile.achievements} achievements</Text>
-            </View>
-          </View>
-
-          {/* Skills Section */}
-          <View style={styles.skillsSection}>
-            <Text style={styles.skillsTitle}>Core Expertise</Text>
-            <View style={styles.skillsContainer}>
-              {profile.skills.map((skill, skillIndex) => (
-                <View key={skillIndex} style={styles.skillTag}>
-                  <Text style={styles.skillText}>{skill}</Text>
+            </Animated.View>
+            
+            <Animated.View style={[styles.swipeOverlay, styles.rightOverlay, rightOverlayStyle]}>
+              <View style={styles.overlayContent}>
+                <Heart size={60} color="#FF595A" fill="#FF595A" strokeWidth={4} />
+                <Text style={styles.overlayText}>LIKE</Text>
+              </View>
+            </Animated.View>
+            
+            {/* Header Section */}
+            <View style={styles.cardHeader}>
+              <View style={styles.profileImageContainer}>
+                <Image source={{ uri: profile.image }} style={styles.profileImage} />
+                <View style={styles.matchBadge}>
+                  <Text style={styles.matchText}>{profile.match}%</Text>
                 </View>
-              ))}
+                <View style={styles.ratingBadge}>
+                  <Star size={12} color="#000000" fill="#000000" />
+                  <Text style={styles.ratingText}>{profile.rating}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>{profile.name}</Text>
+                <Text style={styles.profileTitle}>{profile.title}</Text>
+                <View style={styles.companyContainer}>
+                  <Briefcase size={16} color="#FF595A" strokeWidth={2.5} />
+                  <Text style={styles.companyText}>{profile.company}</Text>
+                </View>
+              </View>
             </View>
-          </View>
 
-          {/* Action Buttons */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.passButton]} 
-              onPress={handlePass}
-              activeOpacity={0.8}>
-              <X size={24} color="#FF595A" strokeWidth={3} />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.messageButton]} 
-              onPress={handleMessage}
-              activeOpacity={0.8}>
-              <MessageCircle size={24} color="#F4E0CC" strokeWidth={3} />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.likeButton]} 
-              onPress={handleLike}
-              activeOpacity={0.8}>
-              <Heart size={24} color="#FF595A" fill="#FF595A" strokeWidth={3} />
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
-      </View>
-    </Animated.View>
+            {/* Details Section */}
+            <View style={styles.detailsSection}>
+              <View style={styles.detailRow}>
+                <MapPin size={18} color="#666666" strokeWidth={2} />
+                <Text style={styles.detailText}>{profile.location}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Award size={18} color="#666666" strokeWidth={2} />
+                <Text style={styles.detailText}>{profile.experience} • {profile.achievements} achievements</Text>
+              </View>
+            </View>
+
+            {/* Skills Section */}
+            <View style={styles.skillsSection}>
+              <Text style={styles.skillsTitle}>Core Expertise</Text>
+              <View style={styles.skillsContainer}>
+                {profile.skills.map((skill, skillIndex) => (
+                  <View key={skillIndex} style={styles.skillTag}>
+                    <Text style={styles.skillText}>{skill}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </LinearGradient>
+        </View>
+      </Animated.View>
+    </PanGestureHandler>
   );
 }
 
 export default function InSyncScreen() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleProfiles, setVisibleProfiles] = useState(profiles.slice(0, 3));
   const headerOpacity = useSharedValue(0);
   const headerTranslateY = useSharedValue(-40);
 
@@ -231,6 +345,38 @@ export default function InSyncScreen() {
     };
   });
 
+  const handleSwipeLeft = () => {
+    console.log(`Passed on ${visibleProfiles[0].name}`);
+    nextCard();
+  };
+
+  const handleSwipeRight = () => {
+    console.log(`Liked ${visibleProfiles[0].name}`);
+    nextCard();
+  };
+
+  const nextCard = () => {
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < profiles.length) {
+      setCurrentIndex(nextIndex);
+      // Update visible profiles to show next 3
+      const newVisibleProfiles = profiles.slice(nextIndex, nextIndex + 3);
+      setVisibleProfiles(newVisibleProfiles);
+    } else {
+      // Reset to beginning or show "no more profiles" state
+      setCurrentIndex(0);
+      setVisibleProfiles(profiles.slice(0, 3));
+    }
+  };
+
+  const handleButtonPress = (action: 'pass' | 'like') => {
+    if (action === 'pass') {
+      handleSwipeLeft();
+    } else {
+      handleSwipeRight();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -244,14 +390,64 @@ export default function InSyncScreen() {
         <Text style={styles.subtitle}>AI Driven Matches</Text>
       </Animated.View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        {profiles.map((profile, index) => (
-          <ProfileCard key={profile.id} profile={profile} index={index} />
-        ))}
-      </ScrollView>
+      {/* Card Stack Container */}
+      <View style={styles.cardStackContainer}>
+        {visibleProfiles.length > 0 ? (
+          visibleProfiles.map((profile, index) => (
+            <SwipeableCard
+              key={`${profile.id}-${currentIndex + index}`}
+              profile={profile}
+              index={index}
+              totalCards={visibleProfiles.length}
+              onSwipeLeft={handleSwipeLeft}
+              onSwipeRight={handleSwipeRight}
+              isTop={index === 0}
+            />
+          ))
+        ) : (
+          <View style={styles.noMoreCards}>
+            <Text style={styles.noMoreCardsText}>No more profiles</Text>
+            <TouchableOpacity 
+              style={styles.resetButton}
+              onPress={() => {
+                setCurrentIndex(0);
+                setVisibleProfiles(profiles.slice(0, 3));
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.resetButtonText}>Start Over</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      {/* Action Buttons */}
+      {visibleProfiles.length > 0 && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={styles.passButton} 
+            onPress={() => handleButtonPress('pass')}
+            activeOpacity={0.8}
+          >
+            <X size={28} color="#FF595A" strokeWidth={3} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.messageButton} 
+            activeOpacity={0.8}
+          >
+            <MessageCircle size={28} color="#F4E0CC" strokeWidth={3} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.likeButton} 
+            onPress={() => handleButtonPress('like')}
+            activeOpacity={0.8}
+          >
+            <Heart size={28} color="#FF595A" fill="#FF595A" strokeWidth={3} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -291,17 +487,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     opacity: 0.9,
   },
-  scrollView: {
+  cardStackContainer: {
     flex: 1,
-  },
-  scrollContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingBottom: 140,
   },
   cardContainer: {
-    marginBottom: 28,
+    position: 'absolute',
+    width: CARD_WIDTH,
+    height: height * 0.65,
   },
   card: {
+    flex: 1,
     borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#FF595A',
@@ -314,7 +513,36 @@ const styles = StyleSheet.create({
     elevation: 15,
   },
   cardGradient: {
+    flex: 1,
     padding: 28,
+    position: 'relative',
+  },
+  swipeOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+    zIndex: 10,
+  },
+  leftOverlay: {
+    backgroundColor: 'rgba(255, 89, 90, 0.1)',
+  },
+  rightOverlay: {
+    backgroundColor: 'rgba(255, 89, 90, 0.1)',
+  },
+  overlayContent: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  overlayText: {
+    fontSize: 32,
+    fontFamily: 'Inter-Bold',
+    color: '#FF595A',
+    letterSpacing: 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -417,7 +645,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   skillsSection: {
-    marginBottom: 32,
+    flex: 1,
   },
   skillsTitle: {
     fontSize: 18,
@@ -446,14 +674,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   actionButtons: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 32,
+    paddingHorizontal: 40,
   },
-  actionButton: {
+  passButton: {
     width: 64,
     height: 64,
     borderRadius: 32,
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000000',
@@ -464,20 +698,68 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
-  },
-  passButton: {
-    backgroundColor: '#ffffff',
     borderWidth: 3,
     borderColor: '#FF595A',
   },
   messageButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
     borderWidth: 3,
     borderColor: '#F4E0CC',
   },
   likeButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
     borderWidth: 3,
     borderColor: '#FF595A',
+  },
+  noMoreCards: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  noMoreCardsText: {
+    fontSize: 24,
+    fontFamily: 'Inter-Medium',
+    color: '#F4E0CC',
+    textAlign: 'center',
+    marginBottom: 24,
+    opacity: 0.8,
+  },
+  resetButton: {
+    backgroundColor: '#FF595A',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 24,
+  },
+  resetButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: '#F4E0CC',
+    letterSpacing: 0.5,
   },
 });
