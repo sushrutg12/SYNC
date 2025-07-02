@@ -251,15 +251,13 @@ function ProfileCard({ profile, index, onPass, onLike }: {
         <View style={styles.avatarContainer}>
           <Image source={{ uri: profile.avatar }} style={styles.avatar} />
         </View>
-        <View style={styles.headerInfo}>
-          <Text style={styles.profileName}>{profile.name}</Text>
-          <View style={styles.titleEducationRow}>
-            <View style={styles.titleBubble}>
-              <Text style={styles.titleText}>{profile.role}</Text>
-            </View>
-            <View style={styles.educationBubble}>
-              <Text style={styles.educationText}>{profile.education}</Text>
-            </View>
+        <Text style={styles.profileName}>{profile.name}</Text>
+        <View style={styles.titleEducationRow}>
+          <View style={styles.titleBubble}>
+            <Text style={styles.titleText}>{profile.role}</Text>
+          </View>
+          <View style={styles.educationBubble}>
+            <Text style={styles.educationText}>{profile.education}</Text>
           </View>
         </View>
       </View>
@@ -451,63 +449,57 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   
-  // Header Card Styles
+  // Header Card Styles - Updated for vertical layout
   headerCard: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: 'transparent', // Removed grey background
     borderRadius: 20,
     padding: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    alignItems: 'center', // Center everything horizontally
   },
   avatarContainer: {
-    marginRight: 20,
+    alignItems: 'center',
+    marginBottom: 16, // Space between avatar and name
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     borderWidth: 3,
     borderColor: '#F4E0CC',
   },
-  headerInfo: {
-    flex: 1,
-  },
   profileName: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: 'Inter-Bold',
     color: '#F4E0CC',
-    marginBottom: 12,
+    marginBottom: 16, // Space between name and bubbles
     letterSpacing: 0.5,
+    textAlign: 'center',
   },
   titleEducationRow: {
     flexDirection: 'row',
     gap: 12,
     flexWrap: 'wrap',
+    justifyContent: 'center', // Center the bubbles
   },
   titleBubble: {
     backgroundColor: '#FF595A',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
   },
   titleText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
     color: '#F4E0CC',
   },
   educationBubble: {
     backgroundColor: '#333333',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
   },
   educationText: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Inter-Medium',
     color: '#F4E0CC',
   },
