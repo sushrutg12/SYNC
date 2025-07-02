@@ -139,13 +139,20 @@ function StandoutAvatar({ standout, index }: { standout: Standout; index: number
   return (
     <Animated.View style={animatedStyle}>
       <TouchableOpacity style={styles.standoutContainer} activeOpacity={0.8}>
-        <View style={[
-          styles.standoutRing,
-          standout.isNew && standout.name !== 'Priya' && standout.name !== 'Alex' && styles.standoutRingNew
-        ]}>
-          <Image source={{ uri: standout.avatar }} style={styles.standoutAvatar} />
-        </View>
-        {standout.isNew && <View style={styles.newIndicator} />}
+        <LinearGradient
+          colors={standout.isNew ? ['#FF595A', '#FF7F7F'] : ['rgba(244, 224, 204, 0.2)', 'rgba(244, 224, 204, 0.1)']}
+          style={[styles.standoutGradientRing]}
+        >
+          <View style={styles.standoutInnerRing}>
+            <Image source={{ uri: standout.avatar }} style={styles.standoutAvatar} />
+          </View>
+        </LinearGradient>
+        {standout.isNew && (
+          <View style={styles.newIndicator}>
+            <View style={styles.newIndicatorPulse} />
+          </View>
+        )}
+        <Text style={styles.standoutName}>{standout.name}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -302,17 +309,25 @@ export default function ConnectionsScreen() {
       </Animated.View>
 
       <Animated.View style={[styles.standoutsSection, standoutsAnimatedStyle]}>
-        <Text style={styles.standoutsLabel}>INSYNC</Text>
-        <FlatList
-          data={standouts}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.standoutsList}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <StandoutAvatar standout={item} index={index} />
-          )}
-        />
+        <LinearGradient
+          colors={['rgba(30, 30, 30, 0.95)', 'rgba(18, 18, 18, 0.98)']}
+          style={styles.standoutsSectionGradient}
+        >
+          <View style={styles.standoutsHeader}>
+            <Text style={styles.standoutsLabel}>INSYNC</Text>
+            <View style={styles.standoutsAccent} />
+          </View>
+          <FlatList
+            data={standouts}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.standoutsList}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item, index }) => (
+              <StandoutAvatar standout={item} index={index} />
+            )}
+          />
+        </LinearGradient>
       </Animated.View>
 
       <ScrollView
@@ -350,53 +365,84 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   standoutsSection: {
-    backgroundColor: '#F4E0CC',
-    paddingVertical: 20,
     marginBottom: 8,
   },
+  standoutsSectionGradient: {
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
+  },
+  standoutsHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   standoutsLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Inter-Bold',
-    color: '#121212',
+    color: '#F4E0CC',
     textAlign: 'center',
-    letterSpacing: 2,
-    marginBottom: 16,
+    letterSpacing: 3,
+    marginBottom: 8,
+  },
+  standoutsAccent: {
+    width: 40,
+    height: 2,
+    backgroundColor: '#FF595A',
+    borderRadius: 1,
   },
   standoutsList: {
-    paddingHorizontal: 24,
-    gap: 20,
+    paddingHorizontal: 4,
+    gap: 24,
   },
   standoutContainer: {
     alignItems: 'center',
     position: 'relative',
   },
-  standoutRing: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#F5F5F5',
+  standoutGradientRing: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     padding: 3,
+    marginBottom: 12,
   },
-  standoutRingNew: {
-    borderColor: '#FF595A',
-    borderWidth: 4,
+  standoutInnerRing: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 41,
+    padding: 2,
+    backgroundColor: '#121212',
   },
   standoutAvatar: {
     width: '100%',
     height: '100%',
-    borderRadius: 36,
+    borderRadius: 39,
+  },
+  standoutName: {
+    fontSize: 14,
+    fontFamily: 'Inter-Medium',
+    color: '#F4E0CC',
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   newIndicator: {
     position: 'absolute',
     top: 2,
     right: 2,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: '#FF595A',
-    borderWidth: 2,
-    borderColor: '#1E1E1E',
+    borderWidth: 3,
+    borderColor: '#121212',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  newIndicatorPulse: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F4E0CC',
   },
   conversationsContainer: {
     flex: 1,
@@ -406,22 +452,24 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   conversationItem: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 16,
+    backgroundColor: 'rgba(30, 30, 30, 0.8)',
+    borderRadius: 20,
     marginBottom: 12,
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 224, 204, 0.1)',
   },
   conversationContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
   },
   avatarContainer: {
     position: 'relative',
@@ -432,7 +480,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#F5F5F5',
+    borderColor: 'rgba(245, 245, 245, 0.3)',
     padding: 2,
   },
   conversationAvatarRingActive: {
@@ -448,12 +496,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     right: 2,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: '#FF595A',
     borderWidth: 2,
-    borderColor: '#1E1E1E',
+    borderColor: '#121212',
   },
   messageContent: {
     flex: 1,
@@ -462,7 +510,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   senderName: {
     fontSize: 16,
@@ -477,6 +525,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#F4E0CC',
     fontFamily: 'Inter-Regular',
+    opacity: 0.7,
   },
   lastMessage: {
     fontSize: 14,
