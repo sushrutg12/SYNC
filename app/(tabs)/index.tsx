@@ -492,8 +492,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 40, // Added extra top padding to keep subtitle visible
-    paddingBottom: 140,
+    paddingTop: 40,
+    paddingBottom: 40,
   },
   cardContainer: {
     position: 'absolute',
@@ -676,13 +676,14 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 24,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 32,
     paddingHorizontal: 40,
+    zIndex: 100,
   },
   passButton: {
     width: 64,
