@@ -23,7 +23,7 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-import { MessageCircle, Send, ArrowLeft, Phone, Video, MoreVertical, Smile } from 'lucide-react-native';
+import { MessageCircle, Send, ArrowLeft, Phone, Video, MoveVertical as MoreVertical, Smile } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
