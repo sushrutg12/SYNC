@@ -564,7 +564,7 @@ export default function ConnectionsScreen() {
   const stickyHeaderAnimatedStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
-      [150, 200], // Start appearing after scrolling past standouts
+      [200, 250], // Start appearing after scrolling past standouts and INSYNC title
       [0, 1],
       Extrapolate.CLAMP
     );
@@ -615,13 +615,13 @@ export default function ConnectionsScreen() {
         {/* Top padding for status bar */}
         <View style={styles.topSpacer} />
         
-        {/* Standout Profiles Section - At the very top */}
+        {/* Standout Profiles Section with INSYNC Title */}
         <View style={styles.standoutsSection}>
           <LinearGradient
-            colors={['#6366F1', '#8B5CF6']} // Purple gradient matching your design
+            colors={['#D4B896', '#C9A876']} // Beautiful sandy gradient
             style={styles.standoutsGradientBackground}
           >
-            <Text style={styles.standoutsTitle}>STANDOUTS</Text>
+            <Text style={styles.standoutsTitle}>INSYNC</Text>
             <FlatList
               data={standouts}
               horizontal
@@ -634,17 +634,6 @@ export default function ConnectionsScreen() {
             />
           </LinearGradient>
         </View>
-
-        {/* INSYNC Title Section - Below standouts, scrolls away */}
-        <Animated.View style={[styles.scrollableTitle, headerAnimatedStyle]}>
-          <LinearGradient
-            colors={['rgba(30, 30, 30, 0.9)', 'rgba(18, 18, 18, 0.8)']}
-            style={styles.titleGradientBackground}
-          >
-            <Text style={styles.title}>INSYNC</Text>
-            <View style={styles.accent} />
-          </LinearGradient>
-        </Animated.View>
         
         {/* Conversations */}
         <View style={styles.conversationsContainer}>
@@ -704,7 +693,7 @@ const styles = StyleSheet.create({
     height: Platform.OS === 'ios' ? 50 : 30, // Status bar spacing
   },
 
-  // Standouts Section (at the very top)
+  // Standouts Section with INSYNC title
   standoutsSection: {
     shadowColor: '#000000',
     shadowOffset: {
@@ -723,10 +712,13 @@ const styles = StyleSheet.create({
   standoutsTitle: {
     fontSize: 24,
     ...getFontStyle('logo'),
-    color: '#000000',
+    color: '#2C1810', // Dark brown text on sandy background
     textAlign: 'center',
     letterSpacing: 3,
     marginBottom: 24,
+    textShadowColor: 'rgba(44, 24, 16, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   standoutsList: {
     paddingHorizontal: 4,
@@ -758,7 +750,7 @@ const styles = StyleSheet.create({
   standoutName: {
     fontSize: 14,
     ...getFontStyle('regular'),
-    color: '#000000',
+    color: '#2C1810', // Dark brown text on sandy background
     textAlign: 'center',
     letterSpacing: 0.5,
     fontWeight: '600',
@@ -783,32 +775,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F4E0CC',
   },
 
-  // Scrollable INSYNC Title (below standouts)
-  scrollableTitle: {
-    marginBottom: 20,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
   titleGradientBackground: {
     paddingVertical: 20,
     paddingHorizontal: 20,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(244, 224, 204, 0.1)',
-  },
-  title: {
-    fontSize: 20,
-    ...getFontStyle('logo'),
-    color: '#FF595A',
-    textAlign: 'center',
-    letterSpacing: 4,
-    marginBottom: 8,
   },
   accent: {
     width: 60,
@@ -821,6 +793,7 @@ const styles = StyleSheet.create({
   conversationsContainer: {
     paddingHorizontal: 16,
     gap: 12,
+    marginTop: 20,
   },
   conversationItem: {
     backgroundColor: 'rgba(30, 30, 30, 0.8)',
