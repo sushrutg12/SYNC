@@ -19,8 +19,19 @@ import {
 } from '@expo-google-fonts/source-sans-pro';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Platform } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
+
+// Load custom fonts for web
+if (Platform.OS === 'web') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @import url('https://fonts.googleapis.com/css2?family=Sztos+Variable:wght@100..900;wdth@75..200&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roc+Grotesk+Variable:wght@100..900;wdth@75..200&display=swap');
+  `;
+  document.head.appendChild(style);
+}
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -37,12 +48,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded || Platform.OS === 'web') {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded && Platform.OS !== 'web') {
     return null;
   }
 

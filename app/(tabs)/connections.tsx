@@ -25,6 +25,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MessageCircle, Send, ArrowLeft, Phone, Video, MoveVertical as MoreVertical, Smile } from 'lucide-react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { getFontStyle } from '@/utils/fonts';
 
 const { width } = Dimensions.get('window');
 
@@ -345,7 +346,7 @@ function ConversationItem({ conversation, index, onPress }: {
               <Text style={[
                 styles.senderName,
                 conversation.unread && styles.senderNameUnread,
-                (conversation.name === 'Alexander Rodriguez' || conversation.name === 'Priya Sharma') && { color: '#F5F5F5', fontFamily: 'Inter-Bold' }
+                (conversation.name === 'Alexander Rodriguez' || conversation.name === 'Priya Sharma') && { color: '#F5F5F5', ...getFontStyle('subtitle') }
               ]}>
                 {conversation.name}
               </Text>
@@ -667,7 +668,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('logo'),
     color: '#FF595A',
     textAlign: 'center',
     letterSpacing: 4,
@@ -738,7 +739,7 @@ const styles = StyleSheet.create({
   },
   standoutName: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
     textAlign: 'center',
     letterSpacing: 0.5,
@@ -842,29 +843,29 @@ const styles = StyleSheet.create({
   },
   senderName: {
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#F5F5F5',
   },
   senderNameUnread: {
     color: '#FF595A',
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
   },
   messageTime: {
     fontSize: 12,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.7,
   },
   lastMessage: {
     fontSize: 14,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     lineHeight: 20,
     opacity: 0.8,
   },
   lastMessageUnread: {
     color: '#F4E0CC',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     opacity: 1,
   },
 
@@ -917,13 +918,13 @@ const styles = StyleSheet.create({
   },
   chatHeaderName: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F5F5F5',
     marginBottom: 2,
   },
   chatHeaderStatus: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
     opacity: 0.7,
   },
@@ -955,7 +956,7 @@ const styles = StyleSheet.create({
   chatIntro: {
     fontSize: 12,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.6,
   },
   messageContainer: {
@@ -983,7 +984,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     lineHeight: 22,
   },
   ownMessageText: {
@@ -1007,13 +1008,13 @@ const styles = StyleSheet.create({
   messageTimestamp: {
     fontSize: 11,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.6,
   },
   messageStatus: {
     fontSize: 11,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.6,
   },
   messageStatusRead: {
@@ -1051,7 +1052,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#F5F5F5',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     maxHeight: 100,
     paddingVertical: 8,
   },

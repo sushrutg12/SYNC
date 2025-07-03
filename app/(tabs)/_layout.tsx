@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Users, Search, Link, User } from 'lucide-react-native';
+import { getFontStyle } from '@/utils/fonts';
 
 export default function TabLayout() {
   return (
@@ -25,7 +26,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#666666',
         tabBarLabelStyle: {
           fontSize: 12,
-          fontFamily: 'Inter-SemiBold',
+          ...getFontStyle('subtitle'),
           marginTop: 6,
           letterSpacing: 0.8,
           textTransform: 'uppercase',

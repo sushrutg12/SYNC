@@ -24,6 +24,7 @@ import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-g
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageCircle, Heart, X, MapPin, Briefcase, Award, Star } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { getFontStyle } from '@/utils/fonts';
 
 const { width, height } = Dimensions.get('window');
 const CARD_WIDTH = width - 48;
@@ -500,7 +501,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: 36,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('logo'),
     color: '#FF595A',
     letterSpacing: 4,
     marginBottom: 12,
@@ -510,8 +511,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
     letterSpacing: 1,
     opacity: 0.9,
   },
@@ -569,7 +570,7 @@ const styles = StyleSheet.create({
   },
   overlayText: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('logo'),
     color: '#FF595A',
     letterSpacing: 2,
   },
@@ -608,7 +609,7 @@ const styles = StyleSheet.create({
   matchText: {
     color: '#ffffff',
     fontSize: 14,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     letterSpacing: 0.5,
   },
   ratingBadge: {
@@ -628,14 +629,14 @@ const styles = StyleSheet.create({
   ratingText: {
     color: '#000000',
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     fontSize: 28,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#000000',
     marginBottom: 6,
     letterSpacing: 0.5,
@@ -643,7 +644,7 @@ const styles = StyleSheet.create({
   profileTitle: {
     fontSize: 18,
     color: '#333333',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     marginBottom: 8,
     lineHeight: 24,
   },
@@ -655,7 +656,7 @@ const styles = StyleSheet.create({
   companyText: {
     fontSize: 16,
     color: '#FF595A',
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     letterSpacing: 0.5,
   },
   detailsSection: {
@@ -670,7 +671,7 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 16,
     color: '#666666',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     lineHeight: 22,
   },
   skillsSection: {
@@ -678,7 +679,7 @@ const styles = StyleSheet.create({
   },
   skillsTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#000000',
     marginBottom: 16,
     letterSpacing: 0.5,
@@ -699,7 +700,7 @@ const styles = StyleSheet.create({
   skillText: {
     fontSize: 14,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     letterSpacing: 0.5,
   },
   actionButtons: {
@@ -774,7 +775,7 @@ const styles = StyleSheet.create({
   },
   noMoreCardsText: {
     fontSize: 24,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     textAlign: 'center',
     marginBottom: 24,
@@ -788,7 +789,7 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     letterSpacing: 0.5,
   },

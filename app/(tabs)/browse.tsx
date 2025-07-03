@@ -20,6 +20,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { Settings, X, Star, MapPin, Briefcase, Award, ExternalLink, Code, Palette, TrendingUp, Users, Calendar, Target, Zap, ChevronLeft, ChevronRight, Download } from 'lucide-react-native';
+import { getFontStyle } from '@/utils/fonts';
 
 const { width, height } = Dimensions.get('window');
 
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontFamily: 'Playfair-Bold',
+    ...getFontStyle('logo'),
     color: '#FF595A',
     letterSpacing: 1,
   },
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 16, // Space between name and bubbles
     letterSpacing: 0.5,
@@ -489,7 +490,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
   },
   educationBubble: {
@@ -500,7 +501,7 @@ const styles = StyleSheet.create({
   },
   educationText: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
   },
 
@@ -517,7 +518,7 @@ const styles = StyleSheet.create({
   },
   bioText: {
     fontSize: 16,
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     color: '#121212',
     lineHeight: 24,
   },
@@ -541,13 +542,13 @@ const styles = StyleSheet.create({
   },
   compatibilityLabel: {
     fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     letterSpacing: 0.5,
   },
   compatibilityScore: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#FF595A',
     letterSpacing: 0.5,
   },
@@ -579,7 +580,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 20,
     letterSpacing: 0.5,
@@ -626,13 +627,13 @@ const styles = StyleSheet.create({
   },
   projectTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 8,
   },
   projectDescription: {
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
     opacity: 0.9,
     lineHeight: 20,
@@ -670,7 +671,7 @@ const styles = StyleSheet.create({
   },
   skillsSubtitle: {
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 12,
     opacity: 0.8,
@@ -690,7 +691,7 @@ const styles = StyleSheet.create({
   },
   skillText: {
     fontSize: 14,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
   },
 
@@ -717,7 +718,7 @@ const styles = StyleSheet.create({
   },
   resumeText: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     letterSpacing: 0.5,
   },
@@ -772,7 +773,7 @@ const styles = StyleSheet.create({
   },
   noMoreProfilesText: {
     fontSize: 20,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     textAlign: 'center',
     marginBottom: 24,
@@ -786,7 +787,7 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     letterSpacing: 0.5,
   },
