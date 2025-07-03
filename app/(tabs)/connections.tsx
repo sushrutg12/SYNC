@@ -560,6 +560,20 @@ export default function ConnectionsScreen() {
     };
   });
 
+  // Sticky header animation - only appears when scrolled past standouts
+  const stickyHeaderAnimatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [150, 200], // Start appearing after scrolling past standouts
+      [0, 1],
+      Extrapolate.CLAMP
+    );
+    
+    return {
+      opacity,
+    };
+  });
+
   const handleBackToList = () => {
     setSelectedChat(null);
     // Clear the URL parameter by navigating to the connections tab without parameters
@@ -579,13 +593,13 @@ export default function ConnectionsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Sticky INSYNC Title Only */}
-      <Animated.View style={[styles.stickyTitle, headerAnimatedStyle]}>
+      {/* Sticky INSYNC Title - Only appears when scrolled */}
+      <Animated.View style={[styles.stickyTitle, stickyHeaderAnimatedStyle]}>
         <LinearGradient
           colors={['rgba(30, 30, 30, 0.98)', 'rgba(18, 18, 18, 0.95)']}
           style={styles.titleGradientBackground}
         >
-          <Text style={styles.title}>INSYNC</Text>
+          <Text style={styles.stickyTitleText}>INSYNC</Text>
           <View style={styles.accent} />
         </LinearGradient>
       </Animated.View>
@@ -598,15 +612,16 @@ export default function ConnectionsScreen() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        {/* Spacer for sticky title */}
-        <View style={styles.titleSpacer} />
+        {/* Top padding for status bar */}
+        <View style={styles.topSpacer} />
         
-        {/* Standout Profiles Section - Can scroll away */}
+        {/* Standout Profiles Section - At the very top */}
         <View style={styles.standoutsSection}>
           <LinearGradient
-            colors={['rgba(30, 30, 30, 0.9)', 'rgba(18, 18, 18, 0.8)']}
+            colors={['#6366F1', '#8B5CF6']} // Purple gradient matching your design
             style={styles.standoutsGradientBackground}
           >
+            <Text style={styles.standoutsTitle}>STANDOUTS</Text>
             <FlatList
               data={standouts}
               horizontal
@@ -619,6 +634,17 @@ export default function ConnectionsScreen() {
             />
           </LinearGradient>
         </View>
+
+        {/* INSYNC Title Section - Below standouts, scrolls away */}
+        <Animated.View style={[styles.scrollableTitle, headerAnimatedStyle]}>
+          <LinearGradient
+            colors={['rgba(30, 30, 30, 0.9)', 'rgba(18, 18, 18, 0.8)']}
+            style={styles.titleGradientBackground}
+          >
+            <Text style={styles.title}>INSYNC</Text>
+            <View style={styles.accent} />
+          </LinearGradient>
+        </Animated.View>
         
         {/* Conversations */}
         <View style={styles.conversationsContainer}>
@@ -640,10 +666,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
   },
   
-  // Sticky Title Styles (INSYNC only)
+  // Sticky Title Styles (appears when scrolled)
   stickyTitle: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 50 : 30,
@@ -659,26 +684,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 10,
   },
-  titleGradientBackground: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
-  },
-  title: {
+  stickyTitleText: {
     fontSize: 20,
     ...getFontStyle('logo'),
     color: '#FF595A',
     textAlign: 'center',
     letterSpacing: 4,
     marginBottom: 8,
-  },
-  accent: {
-    width: 60,
-    height: 4,
-    backgroundColor: '#F4E0CC',
-    borderRadius: 2,
   },
 
   // Scroll Container Styles
@@ -688,13 +700,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 120,
   },
-  titleSpacer: {
-    height: 80, // Height to account for sticky title
+  topSpacer: {
+    height: Platform.OS === 'ios' ? 50 : 30, // Status bar spacing
   },
 
-  // Standouts Section (scrollable)
+  // Standouts Section (at the very top)
   standoutsSection: {
-    marginBottom: 20,
     shadowColor: '#000000',
     shadowOffset: {
       width: 0,
@@ -705,10 +716,17 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   standoutsGradientBackground: {
-    paddingVertical: 24,
+    paddingVertical: 32,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
+    alignItems: 'center',
+  },
+  standoutsTitle: {
+    fontSize: 24,
+    ...getFontStyle('logo'),
+    color: '#000000',
+    textAlign: 'center',
+    letterSpacing: 3,
+    marginBottom: 24,
   },
   standoutsList: {
     paddingHorizontal: 4,
@@ -740,9 +758,10 @@ const styles = StyleSheet.create({
   standoutName: {
     fontSize: 14,
     ...getFontStyle('regular'),
-    color: '#F4E0CC',
+    color: '#000000',
     textAlign: 'center',
     letterSpacing: 0.5,
+    fontWeight: '600',
   },
   newIndicator: {
     position: 'absolute',
@@ -762,6 +781,40 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#F4E0CC',
+  },
+
+  // Scrollable INSYNC Title (below standouts)
+  scrollableTitle: {
+    marginBottom: 20,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  titleGradientBackground: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(244, 224, 204, 0.1)',
+  },
+  title: {
+    fontSize: 20,
+    ...getFontStyle('logo'),
+    color: '#FF595A',
+    textAlign: 'center',
+    letterSpacing: 4,
+    marginBottom: 8,
+  },
+  accent: {
+    width: 60,
+    height: 4,
+    backgroundColor: '#F4E0CC',
+    borderRadius: 2,
   },
 
   // Conversations Styles
