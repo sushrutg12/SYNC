@@ -31,6 +31,7 @@ import {
   Calendar,
   Award
 } from 'lucide-react-native';
+import { getFontStyle } from '@/utils/fonts';
 
 interface ProfileSection {
   id: string;
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('logo'),
     color: '#FF7F7F',
     letterSpacing: 1,
   },
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 32,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#FF7F7F',
     marginBottom: 8,
     letterSpacing: 1,
@@ -465,7 +466,7 @@ const styles = StyleSheet.create({
   userType: {
     fontSize: 18,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
   },
   completionSection: {
     backgroundColor: 'rgba(30, 30, 30, 0.8)',
@@ -476,7 +477,7 @@ const styles = StyleSheet.create({
   },
   completionTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 12,
   },
@@ -497,7 +498,7 @@ const styles = StyleSheet.create({
   completionSubtitle: {
     fontSize: 14,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.7,
   },
   sectionsContainer: {
@@ -531,14 +532,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 14,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     opacity: 0.7,
   },
   viewButtonContainer: {
@@ -552,7 +553,7 @@ const styles = StyleSheet.create({
   },
   viewProfileButtonText: {
     fontSize: 18,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
     letterSpacing: 0.5,
   },
@@ -570,12 +571,12 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#FF595A',
   },
   viewModeTitle: {
     fontSize: 20,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#F4E0CC',
   },
   doneButton: {
@@ -583,7 +584,7 @@ const styles = StyleSheet.create({
   },
   doneText: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#FF595A',
   },
   tabSelector: {
@@ -599,13 +600,13 @@ const styles = StyleSheet.create({
   },
   tabButtonTextActive: {
     fontSize: 16,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#FF595A',
     paddingBottom: 8,
   },
   tabButtonTextInactive: {
     fontSize: 16,
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     color: '#F4E0CC',
     opacity: 0.6,
     paddingBottom: 8,
@@ -674,7 +675,7 @@ const styles = StyleSheet.create({
   matchText: {
     color: '#ffffff',
     fontSize: 14,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     letterSpacing: 0.5,
   },
   ratingBadge: {
@@ -694,14 +695,14 @@ const styles = StyleSheet.create({
   ratingText: {
     color: '#000000',
     fontSize: 12,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     fontSize: 28,
-    fontFamily: 'Inter-Bold',
+    ...getFontStyle('subtitle'),
     color: '#000000',
     marginBottom: 6,
     letterSpacing: 0.5,
@@ -709,7 +710,7 @@ const styles = StyleSheet.create({
   profileTitle: {
     fontSize: 18,
     color: '#333333',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     marginBottom: 8,
     lineHeight: 24,
   },
@@ -721,7 +722,7 @@ const styles = StyleSheet.create({
   companyText: {
     fontSize: 16,
     color: '#FF595A',
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     letterSpacing: 0.5,
   },
   detailsSection: {
@@ -736,7 +737,7 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 16,
     color: '#666666',
-    fontFamily: 'Inter-Regular',
+    ...getFontStyle('regular'),
     lineHeight: 22,
   },
   skillsSection: {
@@ -744,7 +745,7 @@ const styles = StyleSheet.create({
   },
   skillsTitle: {
     fontSize: 18,
-    fontFamily: 'Inter-SemiBold',
+    ...getFontStyle('subtitle'),
     color: '#000000',
     marginBottom: 16,
     letterSpacing: 0.5,
@@ -765,7 +766,7 @@ const styles = StyleSheet.create({
   skillText: {
     fontSize: 14,
     color: '#F4E0CC',
-    fontFamily: 'Inter-Medium',
+    ...getFontStyle('regular'),
     letterSpacing: 0.5,
   },
 });
